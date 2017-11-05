@@ -36,6 +36,7 @@
                    kind="IMPORTANT_FILES_FOLDER">
       <itemPath>Makefile</itemPath>
     </logicalFolder>
+    <itemPath>Sender/ToDo</itemPath>
   </logicalFolder>
   <projectmakefile>Makefile</projectmakefile>
   <confs>
@@ -52,6 +53,8 @@
       <item path="Sender/Sender.cpp" ex="false" tool="1" flavor2="0">
       </item>
       <item path="Sender/Sender.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="Sender/ToDo" ex="false" tool="3" flavor2="0">
       </item>
       <item path="Tests/Sender/RunSenderTests.cpp" ex="false" tool="1" flavor2="0">
       </item>
@@ -101,6 +104,8 @@
       <item path="Sender/Sender.cpp" ex="false" tool="1" flavor2="0">
       </item>
       <item path="Sender/Sender.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="Sender/ToDo" ex="false" tool="3" flavor2="0">
       </item>
       <item path="Tests/Sender/RunSenderTests.cpp" ex="false" tool="1" flavor2="0">
       </item>

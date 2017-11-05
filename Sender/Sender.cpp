@@ -1,4 +1,3 @@
-// #include <cstdlib>
 #include <cstring>
 #include <stdlib.h>
 #include <iostream>
@@ -12,103 +11,58 @@
 #include <assert.h>
 #include <stdio.h>
 #include <sstream>
+#include <unistd.h>
 
 #include "Sender.h"
 
-Sender::Sender(std::string protocol, std::string host, std::string path, std::vector< std::pair<std::string, std::string> > params) {
+Sender::Sender(std::string protocol, std::string host)
+{
     _protocol = protocol;
     _host = host;
-    _path = path;
-    _params = ConvertParams(params);
-}
-
-/*Пока в задумках, надо потщательнее посмотреть варианты. но сейчас несущественно.
-Sender(std::string url) {
-    _protocol = GetProtocol(url);
-    _host = GetHost(url);
-    _path = GetPath(url);
-    _params = GetPath(url);
-}
-
-std::string GetProtocol(std::string url) {
-    std::string protocol = "";
-
-    int i = 0;
-
-    for (i = 0; i < url.size(); i++) {
-        if (url[i] != '/' || url[i + 1] != '/') {
-            protocol += url[i];
-        } else {
-            protocol += "//";
-            break;
-        }
+    
+    // Преобразование имени хоста
+    struct hostent* raw_host;
+    raw_host = gethostbyname(_host.c_str());
+    if (raw_host == NULL)
+    {
+        std::cerr << "Ошибка, данный хост не существует или некорректен" << std::endl;
+        exit(0);
     }
 
-    return protocol;
-}
+    // Создаем сокет с доменом Internet и типом SOCK_STREAM (с предварительной установкой соединения).
+    _socket = socket(AF_INET, SOCK_STREAM, 0);
 
-std::string GetHost(std::string url) {
-    std::string host = "";
+    // Настраиваем адрес
+    struct sockaddr_in addr;
+    addr.sin_family = AF_INET;
+    addr.sin_port = htons(80);
+    bcopy((char*) raw_host->h_addr, (char*) &addr.sin_addr, raw_host->h_length);
 
-    url.replace(0, getProtocol(url).size(), "");
-
-    int i = 0;
-    for (i = 0; i < url.size(); i++) {
-
-        if (url[i] != '/') {
-            host += url[i];
-        } else {
-            break;
-        }
-
+    // Установка соединения
+    if (connect(_socket, (struct sockaddr *) &addr, sizeof (addr)) < 0)
+    {
+        std::cerr << "Не удалось установить соединение." << std::endl;
+        exit(2);
     }
-
-    return host;
 }
 
-std::string GetPath(std::string url) {
-    std::string parm = "";
-
-    url.replace(0, getProtocol(url).size() + getHost(url).size(), "");
-
-    int i = 0;
-    for (i = 0; i < url.size(); i++) {
-
-        if (url[i] != '?' && url[i] != '#') {
-            parm += url[i];
-        } else {
-            break;
-        }
-
+Sender::~Sender()
+{
+    if(close(_socket) != 0)
+    {
+        std::cerr << "Не удалось закрыть сокет." << std::endl;
+        exit(2);
     }
-
-    return parm;
 }
 
- */
-
-std::string Sender::ConvertParams(std::vector< std::pair< std::string, std::string> > params) {
-    std::string parm = "";
-
-    for (int i = 0; i < params.size(); ++i) {
-        if (i != 0)
-            parm += "&";
-
-        parm += params[i].first + "=" + params[i].second;
-    }
-
-    return parm;
-}
-
-// пока криво, надо снести в конструктор создание сокета, а здесь оставить сборку в запрос
-
-std::string Sender::SendGET() {
-    char buf[1024];
-
+std::string Sender::SendGET(std::string path, std::vector< std::pair< std::string, std::string> > params)
+{
+    std::string GETParamsString = ConvertParams(params);
+    
     std::string header = "";
-
+    
     header += "GET ";
-    header += _protocol + "://" +  _host + "/" + _path + "?" + _params + "\r\n";
+    header += _protocol + "://" +  _host + "/" + path + "?" + GETParamsString + "\r\n";
     header += (std::string)" HTTP/1.1" + "\r\n";
     header += (std::string)"Host: " + _protocol + "://" + _host + "/" + "\r\n";
     header += (std::string)"User-Agent: Mozilla/5.0" + "\r\n";
@@ -118,42 +72,20 @@ std::string Sender::SendGET() {
     header += (std::string)"Connection: keep-alive " + "\r\n";
     header += "\r\n";
 
+    return Send(header);
+}
 
-
-    int sock;
-    struct hostent* raw_host;
-    raw_host = gethostbyname(_host.c_str());
-    if (raw_host == NULL) {
-        std::cout << "ERROR, no such host";
-        exit(0);
-    }
-
-    // Создаем сокет с доменом Internet и типом SOCK_STREAM (с предварительной установкой соединения).
-    sock = socket(AF_INET, SOCK_STREAM, 0);
-
-    // Настраиваем адрес
-    struct sockaddr_in addr;
-    addr.sin_family = AF_INET;
-    addr.sin_port = htons(80);
-    bcopy((char*) raw_host->h_addr, (char*) &addr.sin_addr, raw_host->h_length);
-
-    // Связывать сокет с адресом - необязательно, connect сама это делает.
-    // bind(sock, addr, sizeof(addr));
-
-    // Установка соединения
-    if (connect(sock, (struct sockaddr *) &addr, sizeof (addr)) < 0) {
-        std::cerr << "connect error" << std::endl;
-        exit(2);
-    }
-
+std::string Sender::Send(std::string header)
+{
+    char buf[1024];
 
     char * message = new char[ header.size() ];
     for (int i = 0; i < header.size(); i++)
         message[i] = header[i];
 
     // Отправляем запрос.
-    send(sock, header.c_str(), header.size(), 0);
-    recv(sock, buf, sizeof (buf), 0);
+    send(_socket, header.c_str(), header.size(), 0);
+    recv(_socket, buf, sizeof (buf), 0);
 
     std::string result = "";
 
@@ -166,4 +98,17 @@ std::string Sender::SendGET() {
     }
 
     return result;
+}
+
+std::string Sender::ConvertParams(std::vector< std::pair< std::string, std::string> > params) {
+    std::string parm = "";
+
+    for (int i = 0; i < params.size(); ++i) {
+        if (i != 0)
+            parm += "&";
+
+        parm += params[i].first + "=" + params[i].second;
+    }
+
+    return parm;
 }

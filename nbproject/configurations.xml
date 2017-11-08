@@ -4,7 +4,6 @@
     <logicalFolder name="HeaderFiles"
                    displayName="Header Files"
                    projectFiles="true">
-      <itemPath>Receiver/Receiver.hpp</itemPath>
       <itemPath>Sender/Sender.h</itemPath>
     </logicalFolder>
     <logicalFolder name="ResourceFiles"
@@ -50,8 +49,6 @@
       <compileType>
       </compileType>
       <item path="Cacher/Cacher.cpp" ex="false" tool="1" flavor2="0">
-      </item>
-      <item path="Receiver/Receiver.hpp" ex="false" tool="3" flavor2="0">
       </item>
       <item path="Sender/Sender.cpp" ex="false" tool="1" flavor2="0">
       </item>
@@ -103,8 +100,6 @@
         </asmTool>
       </compileType>
       <item path="Cacher/Cacher.cpp" ex="false" tool="1" flavor2="0">
-      </item>
-      <item path="Receiver/Receiver.hpp" ex="false" tool="3" flavor2="0">
       </item>
       <item path="Sender/Sender.cpp" ex="false" tool="1" flavor2="0">
       </item>

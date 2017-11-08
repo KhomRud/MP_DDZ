@@ -48,7 +48,7 @@ private:
 private:
     bool m_lastTestFailed;
 };
-
+/*
 int main() {
     // Create the event manager and test controller
     CPPUNIT_NS::TestResult controller;
@@ -71,4 +71,4 @@ int main() {
     outputter.write();
 
     return result.wasSuccessful() ? 0 : 1;
-}
+}*/

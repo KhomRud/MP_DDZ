@@ -3,6 +3,9 @@
 
 #endif /* SENDER_H */
 
+/*
+ * Устанавливает соединение с хостом по протоколу и отправляет сообщения с возможностью получения
+ */
 class Sender
 {
 public:
@@ -10,7 +13,7 @@ public:
     ~Sender();
     
     std::string SendGET(std::string path, std::vector< std::pair<std::string, std::string> > params);
-    std::string Send(std::string header);
+    std::string Send(const char * header, size_t length, bool needAnswer);
     
 private:
     std::string ConvertParams(std::vector< std::pair< std::string, std::string> > params );

@@ -72,29 +72,32 @@ std::string Sender::SendGET(std::string path, std::vector< std::pair< std::strin
     header += (std::string)"Connection: keep-alive " + "\r\n";
     header += "\r\n";
 
-    return Send(header);
+    return Send(header.c_str(), header.size(), true);
 }
 
-std::string Sender::Send(std::string header)
+std::string Sender::Send(const char * header, size_t length, bool needAnswer)
 {
-    char buf[1024];
-
-    char * message = new char[ header.size() ];
-    for (int i = 0; i < header.size(); i++)
-        message[i] = header[i];
-
     // Отправляем запрос.
-    send(_socket, header.c_str(), header.size(), 0);
-    recv(_socket, buf, sizeof (buf), 0);
+    send(_socket, header, length, 0);
 
+    if(!needAnswer)
+        return NULL;
+
+    char buf[1024];
     std::string result = "";
 
-    for (int j = 0; j < 1024; j++) 
+    // Принимаем ответ, но по частям
+    int receivedBytes = recv(_socket, buf, sizeof(buf), 0);
+    while(receivedBytes != 0)
     {
-        if (buf[j] != '\0')
-            result += buf[j];
-        else
-            break;
+        if(receivedBytes < 0)
+        {
+            std::cerr << "Ошибка при получении данных с сервера." << std::endl;
+            exit(2);
+        }
+        
+        result.append(buf, receivedBytes); 
+        receivedBytes = recv(_socket, buf, sizeof(buf), 0);
     }
 
     return result;

@@ -39,23 +39,23 @@ public:
     {
         ofstream casheFile;
         casheFile.open(casherFolder,ios::app);
-        string finalStr = "{\n" + _cacheData._request + "\n" + _cacheData._time + "\n" + _cacheData._answer + "\n}\n\n";
+        string finalStr = "{\n" + _cacheData._request + "\n" + _cacheData._time + "\n" + _cacheData._answer + "\n}\n";
         casheFile << finalStr;
         casheFile.close();
     }
     
     cacheInfo * findAllStructs ()
     {
-               string str;
+        string str;
 	ifstream casheFile;
 	casheFile.open (casherFolder);
         
         while(!casheFile.eof)
         {
-	        getline(casheFile,str); // Saves the line in STRING.
-	        cout<<str; // Prints our STRING.
+            getline(casheFile,str);
         }
         
+        casheFile.close (casherFolder);
         
         int structsCount = 0;
         
@@ -73,11 +73,10 @@ public:
         }
         
         cacheInfo * infoStructs = new cacheInfo[structsCount];
-        
-
+                
         for(size_t pos = 0; pos < str.size(); ++pos)
         {
-            pos[0] = str.find('\n', pos);
+            pos = str.find('\n', pos);
             if (pos != std::string::npos)
             {
               ++structsCount;
@@ -88,25 +87,25 @@ public:
             }
         }
         
-        #f
-        for(size_t i = 0; i < structsCount; ++i)
-        {
-            pos = str.find('\n', pos);
-            
-            infoStructs[i]._request = 
-            infoStructs[i]._time    = 
-            infoStructs[i]._answer  =
-        }
         
-        if ()
-        {
-            
-        }
-        
+//        size_t symbolPos = 0;
+//        size_t symbolPos1 = 0;
+//        //Заполнение массива структур
+//        for(size_t i = 0; i < structsCount; ++i)
+//        {
+//            symbolPos = str.find('{\n', symbolPos);
+//            symbolPos1 = str.find('\n', symbolPos1);
+//            for(symbolPos != str.find('}', symbolPos); ++symbolPos)
+//            {
+//                infoStructs[i]._request = 
+//                infoStructs[i]._time    = 
+//                infoStructs[i]._answer  =
+//            };
+//        };
+
         return ;
         
     }
-    
     
     bool IsInCache()
     {

@@ -15,6 +15,11 @@
 
 #include "Sender.h"
 
+/**
+ * 
+ * @param protocol
+ * @param host
+ */
 Sender::Sender(std::string protocol, std::string host)
 {
     _protocol = protocol;
@@ -97,6 +102,7 @@ std::string Sender::Send(const char * header, size_t length, bool needAnswer)
         }
         
         result.append(buf, receivedBytes); 
+
         receivedBytes = recv(_socket, buf, sizeof(buf), 0);
     }
 
@@ -115,3 +121,4 @@ std::string Sender::ConvertParams(std::vector< std::pair< std::string, std::stri
 
     return parm;
 }
+

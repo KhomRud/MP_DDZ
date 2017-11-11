@@ -1,5 +1,5 @@
 #include "SenderTests.h"
-#include "../../Sender/Sender.h"
+#include "../../ProxyServer.Modules/Sender/Sender.h"
 
 
 CPPUNIT_TEST_SUITE_REGISTRATION(SenderTests);

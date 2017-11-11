@@ -36,4 +36,3 @@ private:
 };
 
 #endif /* SENDERTESTS_H */
-

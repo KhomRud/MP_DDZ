@@ -24,7 +24,7 @@ CLEAN_SUBPROJECTS=${CLEAN_SUBPROJECTS_${SUBPROJECTS}}
 
 
 # Project Name
-PROJECTNAME=MP_DDZ
+PROJECTNAME=ProxyServer.Modules
 
 # Active Configuration
 DEFAULTCONF=Debug

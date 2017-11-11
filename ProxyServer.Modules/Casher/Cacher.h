@@ -1,8 +1,6 @@
 #ifndef CACHER_H
 #define CACHER_H
 
-#endif /* CACHER_H */
-
 #define casherFolder "./CachingData.txt"
 
 #include <vector>
@@ -12,6 +10,7 @@
 
 using namespace std;
 
+/*
 
 struct cacheInfo
 {
@@ -117,7 +116,7 @@ public:
 
 
 
-
+*/
 
 
 //
@@ -191,3 +190,7 @@ public:
 //#define IS_IN_CACHE(x) IsInCache(#x)
 //#define READ_FROM_CACHE(x) ReadFromCache(x, #x)
 //#define CACHE_RESULT(x) AddToCache(x, #x)
+
+
+
+#endif /* CACHER_H */

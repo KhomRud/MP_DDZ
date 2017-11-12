@@ -15,11 +15,7 @@
 
 #include "Sender.h"
 
-/**
- * 
- * @param protocol
- * @param host
- */
+
 Sender::Sender(std::string protocol, std::string host)
 {
     _protocol = protocol;
@@ -108,6 +104,7 @@ std::string Sender::Send(const char * header, size_t length, bool needAnswer)
 
     return result;
 }
+
 
 std::string Sender::ConvertParams(std::vector< std::pair< std::string, std::string> > params) {
     std::string parm = "";

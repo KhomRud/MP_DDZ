@@ -1,6 +1,8 @@
 */nbproject/private/
 */build/
 */nbbuild/
+*/nbproject/*.bash
+*/nbproject/*.mk
 */dist/
 */nbdist/
 */.nb-gradle/

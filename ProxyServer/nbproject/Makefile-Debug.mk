@@ -52,11 +52,12 @@ FFLAGS=
 ASFLAGS=
 
 # Link Libraries and Options
-LDLIBSOPTIONS=-Wl,-rpath,'../ProxyServer.Modules/dist/Debug/GNU-Linux' -L../ProxyServer.Modules/dist/Debug/GNU-Linux -lProxyServer.Modules
+LDLIBSOPTIONS=-Wl,-rpath,'./' -Wl,-rpath,'../ProxyServer.Modules/dist/Debug/GNU-Linux' -L../ProxyServer.Modules/dist/Debug/GNU-Linux -lProxyServer.Modules
 
 # Build Targets
 .build-conf: ${BUILD_SUBPROJECTS}
 	"${MAKE}"  -f nbproject/Makefile-${CND_CONF}.mk ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/proxyserver
+	${CP} ../ProxyServer.Modules/dist/Debug/GNU-Linux/libProxyServer.Modules.so ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}
 
 ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/proxyserver: ../ProxyServer.Modules/dist/Debug/GNU-Linux/libProxyServer.Modules.so
 

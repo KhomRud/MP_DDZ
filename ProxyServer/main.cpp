@@ -10,8 +10,29 @@
 
 #include "../ProxyServer.Modules/Sender/Sender.h"
 
-#define BEGIN 6
-#define HOST "http://192.168.101.129/info.php"
+#define HOST "Host: 192.168.101.129:80"
+
+std::string CreateRequest(char buf[])
+{
+    std::string str_buf(buf); // Строка для работы с буфером
+
+    // Ищем конец строки, в которой записан протокол
+    size_t end = str_buf.find("\r\n");
+    
+    // Получаем протокол
+    std::string protocol = str_buf.substr(0, end + 2); 
+
+    // Отрезаем от строки протокол
+    str_buf = str_buf.substr(end + 2, str_buf.length() - end - 2);
+
+    // Ищем конец строки, в которой записан хост
+    end = str_buf.find("\r\n");
+
+    // Отрезаем от строки хост
+    str_buf = str_buf.substr(end, str_buf.length() - end);
+
+    return protocol + HOST + str_buf;
+}
 
 int main()
 {
@@ -19,9 +40,7 @@ int main()
     int listener; // Идентификатор принимающего сокета
     struct sockaddr_in addr; // Адрес сокета
     char buf[1024]; // Буфер для считывания запросов
-    int bytes_read; // Количество считаных байтов
     std::string answer; // Ответ от сервера
-    std::string result("");
     
     // Получаем идентификатор сокета
     listener = socket(AF_INET, SOCK_STREAM, 0);
@@ -61,29 +80,19 @@ int main()
         }
         
         // Читаем данные из сокета
-        bytes_read = recv(sock, buf, 1024, 0);
+        recv(sock, buf, 1024, 0);
         
-        std::string str_buf(buf); // Строка для работы с буфером.
+        // Создаем запрос для сервера
+        std::string request = CreateRequest(buf);
         
-        size_t end = str_buf.find("\r\n");
+        // Создаем объект с помощью которого отсылается запрос на сервер
+        Sender sender("http", "192.168.101.129");
         
-        std::string protocol = str_buf.substr(BEGIN, end); 
+        // Посылаем запрос на сервер и получаем ответ
+        answer = sender.Send(request.c_str(), request.length(), true);
         
-        str_buf = str_buf.substr(end + 2, str_buf.length() - end - 2);
-        
-        end = str_buf.find("\r\n");
-        
-        std::string host = str_buf.substr(BEGIN, end); 
-        
-        str_buf = str_buf.substr(end + 2, str_buf.length() - end - 2);
-        
-        result = HOST;
-        
-        Sender sender("", "");
-        //answer = sender.Send(result.c_str(), result.length(), true);
-        
-        for (int i = 0; i < 1024; ++i)
-            std::cout << result[i];
+        // Отправляем ответ пользователю
+        send(sock, answer.c_str(), answer.length(), 0);
         
         // Закрываем сокет
         close(sock);

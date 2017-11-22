@@ -10,8 +10,8 @@ Sender::Sender(std::string protocol, std::string host)
     raw_host = gethostbyname(_host.c_str());
     if (raw_host == NULL)
     {
-        std::cerr << "Ошибка, данный хост не существует или некорректен" << std::endl;
-        exit(0);
+        perror("Данный хост не существует или некорректен");
+        exit(2);
     }
 
     // Создаем сокет с доменом Internet и типом SOCK_STREAM (с предварительной установкой соединения).
@@ -26,8 +26,8 @@ Sender::Sender(std::string protocol, std::string host)
     // Установка соединения
     if (connect(_socket, (struct sockaddr *) &addr, sizeof (addr)) < 0)
     {
-        std::cerr << "Не удалось установить соединение." << std::endl;
-        exit(2);
+        perror("Не удалось установить соединение");
+        exit(3);
     }
 }
 
@@ -35,8 +35,8 @@ Sender::~Sender()
 {
     if(close(_socket) != 0)
     {
-        std::cerr << "Не удалось закрыть сокет." << std::endl;
-        exit(2);
+        perror("Не удалось закрыть сокет");
+        exit(4);
     }
 }
 
@@ -77,8 +77,8 @@ std::string Sender::Send(const char * header, size_t length, bool needAnswer)
     {
         if(receivedBytes < 0)
         {
-            std::cerr << "Ошибка при получении данных с сервера." << std::endl;
-            exit(2);
+            perror("Ошибка при получении данных с сервера");
+            exit(5);
         }
         
         result.append(buf, receivedBytes); 

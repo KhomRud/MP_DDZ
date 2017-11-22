@@ -18,6 +18,14 @@
                    displayName="Test Files"
                    projectFiles="false"
                    kind="TEST_LOGICAL_FOLDER">
+      <logicalFolder name="f1"
+                     displayName="ConfiguratorTests"
+                     projectFiles="true"
+                     kind="TEST">
+        <itemPath>Configurator/ConfiguratorTester.cpp</itemPath>
+        <itemPath>Configurator/ConfiguratorTester.h</itemPath>
+        <itemPath>Configurator/ConfiguratorTestsRunner.cpp</itemPath>
+      </logicalFolder>
       <logicalFolder name="f2"
                      displayName="SenderTests"
                      projectFiles="true"
@@ -33,6 +41,7 @@
                    kind="IMPORTANT_FILES_FOLDER">
       <itemPath>Makefile</itemPath>
     </logicalFolder>
+    <itemPath>Configurator/Test.txt</itemPath>
   </logicalFolder>
   <projectmakefile>Makefile</projectmakefile>
   <confs>
@@ -60,12 +69,40 @@
           </linkerLibItems>
         </linkerTool>
       </compileType>
+      <item path="Configurator/ConfiguratorTester.cpp"
+            ex="false"
+            tool="1"
+            flavor2="0">
+      </item>
+      <item path="Configurator/ConfiguratorTester.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="Configurator/ConfiguratorTestsRunner.cpp"
+            ex="false"
+            tool="1"
+            flavor2="0">
+      </item>
+      <item path="Configurator/Test.txt" ex="false" tool="3" flavor2="0">
+      </item>
       <item path="Sender/SenderTests.cpp" ex="false" tool="1" flavor2="0">
       </item>
       <item path="Sender/SenderTests.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="Sender/SenderTestsRunner.cpp" ex="false" tool="1" flavor2="0">
       </item>
+      <folder path="TestFiles/f1">
+        <cTool>
+          <commandLine>`cppunit-config --cflags`</commandLine>
+        </cTool>
+        <ccTool>
+          <commandLine>`cppunit-config --cflags`</commandLine>
+        </ccTool>
+        <linkerTool>
+          <output>${TESTDIR}/TestFiles/f1</output>
+          <linkerLibItems>
+            <linkerOptionItem>`cppunit-config --libs`</linkerOptionItem>
+          </linkerLibItems>
+        </linkerTool>
+      </folder>
       <folder path="TestFiles/f2">
         <cTool>
           <commandLine>`cppunit-config --cflags`</commandLine>
@@ -119,12 +156,40 @@
           </linkerLibItems>
         </linkerTool>
       </compileType>
+      <item path="Configurator/ConfiguratorTester.cpp"
+            ex="false"
+            tool="1"
+            flavor2="0">
+      </item>
+      <item path="Configurator/ConfiguratorTester.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="Configurator/ConfiguratorTestsRunner.cpp"
+            ex="false"
+            tool="1"
+            flavor2="0">
+      </item>
+      <item path="Configurator/Test.txt" ex="false" tool="3" flavor2="0">
+      </item>
       <item path="Sender/SenderTests.cpp" ex="false" tool="1" flavor2="0">
       </item>
       <item path="Sender/SenderTests.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="Sender/SenderTestsRunner.cpp" ex="false" tool="1" flavor2="0">
       </item>
+      <folder path="TestFiles/f1">
+        <cTool>
+          <commandLine>`cppunit-config --cflags`</commandLine>
+        </cTool>
+        <ccTool>
+          <commandLine>`cppunit-config --cflags`</commandLine>
+        </ccTool>
+        <linkerTool>
+          <output>${TESTDIR}/TestFiles/f1</output>
+          <linkerLibItems>
+            <linkerOptionItem>`cppunit-config --libs`</linkerOptionItem>
+          </linkerLibItems>
+        </linkerTool>
+      </folder>
       <folder path="TestFiles/f2">
         <cTool>
           <commandLine>`cppunit-config --cflags`</commandLine>

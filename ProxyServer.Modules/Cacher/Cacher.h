@@ -7,6 +7,9 @@
 #include <ctime>
 #include <stdio.h>
 
+#ifndef TEST_H
+#define TEST_H
+
 using namespace std;
 
 struct CacheInfo
@@ -58,3 +61,8 @@ private:
     int         _cacheSize;
     int         _timeIntervalInMin;    
 };
+
+
+
+#endif /* TEST_H */
+

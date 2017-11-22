@@ -4,7 +4,7 @@
     <logicalFolder name="HeaderFiles"
                    displayName="Header Files"
                    projectFiles="true">
-      <itemPath>Casher/Cacher.h</itemPath>
+      <itemPath>Cacher/Cacher.h</itemPath>
       <itemPath>Sender/Sender.h</itemPath>
     </logicalFolder>
     <logicalFolder name="ResourceFiles"
@@ -14,7 +14,7 @@
     <logicalFolder name="SourceFiles"
                    displayName="Source Files"
                    projectFiles="true">
-      <itemPath>Casher/Cacher.cpp</itemPath>
+      <itemPath>Cacher/Cacher.cpp</itemPath>
       <itemPath>Sender/Sender.cpp</itemPath>
     </logicalFolder>
     <logicalFolder name="TestFiles"
@@ -39,9 +39,9 @@
       </toolsSet>
       <compileType>
       </compileType>
-      <item path="Casher/Cacher.cpp" ex="false" tool="1" flavor2="0">
+      <item path="Cacher/Cacher.cpp" ex="false" tool="1" flavor2="0">
       </item>
-      <item path="Casher/Cacher.h" ex="false" tool="3" flavor2="0">
+      <item path="Cacher/Cacher.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="Sender/Sender.cpp" ex="false" tool="1" flavor2="0">
       </item>
@@ -68,9 +68,9 @@
           <developmentMode>5</developmentMode>
         </asmTool>
       </compileType>
-      <item path="Casher/Cacher.cpp" ex="false" tool="1" flavor2="0">
+      <item path="Cacher/Cacher.cpp" ex="false" tool="1" flavor2="0">
       </item>
-      <item path="Casher/Cacher.h" ex="false" tool="3" flavor2="0">
+      <item path="Cacher/Cacher.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="Sender/Sender.cpp" ex="false" tool="1" flavor2="0">
       </item>

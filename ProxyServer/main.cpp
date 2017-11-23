@@ -8,6 +8,7 @@
 #include <unistd.h>
 #include <string>
 
+#include "../ProxyServer.Modules/Cacher/Cacher.h"
 #include "../ProxyServer.Modules/Sender/Sender.h"
 
 #define HOST "Host: 192.168.101.129:80"
@@ -32,6 +33,16 @@ std::string CreateRequest(char buf[])
     str_buf = str_buf.substr(end, str_buf.length() - end);
 
     return protocol + HOST + str_buf;
+}
+
+bool IsBadAnswer(std::string answer)
+{
+    size_t end = answer.find("\r\n");
+    
+    std::string first_str = answer.substr(0, end + 2); 
+     
+    return (first_str.find("Not Found") != std::string::npos) &&
+            (first_str.find("Bad Request") != std::string::npos);
 }
 
 int main()
@@ -82,6 +93,25 @@ int main()
         // Читаем данные из сокета
         recv(sock, buf, 1024, 0);
         
+        std::string str_buf(buf);
+        
+        Cache cache("./cachefile.txt", 5, 1);
+        
+        if (cache.IsInCache(str_buf))
+        {
+            answer = cache.Get(str_buf);
+            
+            std::cout << std::endl << "get from cache" << std::endl;
+//            
+//            std::cout << std::endl << "answer length = " << answer.length() << std::endl;
+//           
+//            std::cout << std::endl << answer.c_str() << std::endl;
+            
+            send(sock, answer.c_str(), answer.length(), 0);
+            
+            continue;
+        }
+        
         // Создаем запрос для сервера
         std::string request = CreateRequest(buf);
         
@@ -90,6 +120,17 @@ int main()
         
         // Посылаем запрос на сервер и получаем ответ
         answer = sender.Send(request.c_str(), request.length(), true);
+        
+        for (int i = 0; i < answer.length(); ++ i)
+                std::cout << answer[i];
+        
+        if (!IsBadAnswer(answer))
+        {
+            std::cout << std::endl << "good answer" << std::endl;
+            cache.Put(str_buf, answer);
+        }
+        else
+            std::cout << std::endl << "find bad answer" << std::endl;
         
         // Отправляем ответ пользователю
         send(sock, answer.c_str(), answer.length(), 0);

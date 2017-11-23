@@ -50,9 +50,10 @@ public:
     
     bool IsTimeExpired();
     
+    bool IsInCache(string request);
+    
 private:
     
-    bool IsInCache(string request);
     bool IsCacheFull();
     
     vector <CacheInfo>  GetFullCachedData();

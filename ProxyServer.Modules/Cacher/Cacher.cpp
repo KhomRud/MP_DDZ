@@ -41,7 +41,9 @@ void Cache::Put(string request, string answer)
 //Loading data from cache.
 string Cache::Get(string request)
 {
-    
+//     size_t end = request.find("\r\n");
+//    
+//    request = request.substr(0, end); 
     string answerByRequest = "";
     
     vector <CacheInfo> structVector = Cache::GetFullCachedData();
@@ -49,6 +51,17 @@ string Cache::Get(string request)
     size_t structCount = structVector.size();
     for (size_t i = 0; i < structCount; ++i)
     {
+//        end = structVector[i].Request.find("\r\n");
+//   
+//        string cacheRequest = structVector[i].Request.substr(0, end); 
+//
+//        size_t begin = structVector[i].Request.find("GET");
+//        
+//        cacheRequest = cacheRequest.substr(begin, end);
+//
+//        if (cacheRequest == request)
+//            answerByRequest = structVector[i].Answer;
+        
         if (structVector[i].Request == request)
             answerByRequest = structVector[i].Answer;
     }
@@ -82,6 +95,8 @@ vector <CacheInfo> Cache::GetFullCachedData()
         casheFile.getline(buf, 100, ':');
         casheFile.getline(buf, 100, ':');
         size = atoi(buf);
+        cout << "Answer size = " << size << endl;
+        
         char* answer = new char[size + 1];
         answer[size] = 0;
         casheFile.read(answer, size);
@@ -115,6 +130,12 @@ vector <CacheInfo> Cache::GetFullCachedData()
 bool Cache::IsInCache(string request)
 {
     bool isInCache = false;
+//    cout << "Request before : " << request << endl;
+//    size_t end = request.find("\r\n");
+//    
+//    request = request.substr(0, end); 
+//    
+//    cout << "Request after : " << request << endl;
     
     if (!FileExists(_cacheFolder))
         return false;
@@ -125,11 +146,22 @@ bool Cache::IsInCache(string request)
        
     for (size_t i = 0; i < structCount; ++i)
     {
+//        end = structVector[i].Request.find("\r\n");
+//   
+//        string cacheRequest = structVector[i].Request.substr(0, end); 
+//   cout << "cacheRequest before : " << cacheRequest << endl;     
+//        size_t begin = structVector[i].Request.find("GET");
+//        
+//        cacheRequest = cacheRequest.substr(begin, end);
+//         cout << "cacheRequest after : " << cacheRequest << endl;
+//        if (cacheRequest == request)
+//            return true;
+            
         if (structVector[i].Request == request)
             isInCache = true;
     }
        
-    return isInCache;
+    return false;
 }
 
 //Checking is data quantity more then cache size.

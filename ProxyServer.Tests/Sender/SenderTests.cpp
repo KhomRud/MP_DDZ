@@ -21,7 +21,7 @@ void SenderTests::SimpleTest1() {
     
     std::vector< std::pair< std::string, std::string> > params;
     
-    Sender testSender("http", "192.168.27.141");
+    Sender testSender("http", "192.168.27.141", "80");
     
     std::string result = testSender.SendGET("info.php", params);
     

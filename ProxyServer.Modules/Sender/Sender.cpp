@@ -1,6 +1,6 @@
 #include "Sender.h"
 
-Sender::Sender(std::string protocol, std::string host)
+Sender::Sender(std::string protocol, std::string host, std::string port)
 {
     _protocol = protocol;
     _host = host;
@@ -20,7 +20,7 @@ Sender::Sender(std::string protocol, std::string host)
     // Настраиваем адрес
     struct sockaddr_in addr;
     addr.sin_family = AF_INET;
-    addr.sin_port = htons(80);
+    addr.sin_port = htons(ToInt(port));
     bcopy((char*) raw_host->h_addr, (char*) &addr.sin_addr, raw_host->h_length);
 
     // Установка соединения

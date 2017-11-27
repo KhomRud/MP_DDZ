@@ -21,6 +21,16 @@
 #ifndef SENDER_H
 #define SENDER_H
 
+template <typename T>
+int ToInt(T val)
+{
+    std::stringstream ss;
+    ss << val;
+    int temp;
+    ss >> temp;
+    return temp;
+}
+
 /** 
  * Устанавливает соединение с хостом по протоколу и отправляет сообщения с возможностью получения 
  */
@@ -29,9 +39,10 @@ public:
     
     /**
      * @param protocol  Протокол, по которому класс будет связываться с хостом
-     * @param host      Адрес хоста.
+     * @param host      Адрес хоста
+     * @param host      Порт хоста
      */
-    Sender(std::string protocol, std::string host);
+    Sender(std::string protocol, std::string host, std::string port);
     ~Sender();
 
     /**

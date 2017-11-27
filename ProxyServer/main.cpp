@@ -8,13 +8,11 @@
 #include <unistd.h>
 #include <string>
 
-
-#include "../ProxyServer.Modules/Cacher/NewCacher.h"
+#include "../ProxyServer.Modules/Cacher/Cacher.h"
 #include "../ProxyServer.Modules/Sender/Sender.h"
 #include "../ProxyServer.Modules/Configurator/Configurator.h"
 
 #define CONFIG_FILE "/home/user/DDZ/MP_DDZ/ConfigFile"
-#define HOST "Host: 192.168.101.129:80"
 
 std::string CreateRequest(char buf[], std::string host, std::string port)
 {
@@ -56,6 +54,7 @@ int main()
     char buf[1024]; // Буфер для считывания запросов
     std::string answer; // Ответ от сервера
     
+    // Загружаем онфигурационный файл
     ConfigurationData configuration = Configurator::Read(CONFIG_FILE);
     
     // Получаем идентификатор сокета
@@ -84,9 +83,7 @@ int main()
     // Переводим сокет в режим ожидания запросов
     listen(listener, 1);
     
-    // Cache cache("./cachefile.txt", 5, 10);
-    
-    NewCacher cacher("./cachefiles/", 5, 10);
+    Cacher cacher("./cachefiles/", configuration.CacheSize, configuration.CacheRelevanceTime);
     
     while(1)
     {
@@ -110,30 +107,16 @@ int main()
             exit(5);
         }
         
+        // Проверяем в кэше
         answer = cacher.Get(str_buf);
         
         if(answer != "")
         {
+            std::cout << std::endl << "Найдено в кэше";
             send(sock, answer.c_str(), answer.length(), 0);  
             continue;
         }
-        
-        /*
-         * if (cache.IsInCache(str_buf))
-        {
-            answer = cache.Get(str_buf);
-            
-            std::cout << std::endl << "get from cache" << std::endl;
-//            
-//            std::cout << std::endl << "answer length = " << answer.length() << std::endl;
-//           
-//            std::cout << std::endl << answer.c_str() << std::endl;
-            
-            send(sock, answer.c_str(), answer.length(), 0);
-            
-            continue;
-        }*/
-        
+               
         // Создаем запрос для сервера
         std::string request = CreateRequest(buf, configuration.Host, configuration.Port);
         
@@ -143,15 +126,14 @@ int main()
         // Посылаем запрос на сервер и получаем ответ
         answer = sender.Send(request.c_str(), request.length(), true);
         
-        //for (int i = 0; i < answer.length(); ++ i)
-        //       std::cout << answer[i];
-        
         cacher.Put(str_buf, answer);
         
+        /*
         if (!IsBadAnswer(answer))
             std::cout << std::endl << "good answer" << std::endl;
         else
             std::cout << std::endl << "find bad answer" << std::endl;
+        */
         
         // Отправляем ответ пользователю
         send(sock, answer.c_str(), answer.length(), 0);

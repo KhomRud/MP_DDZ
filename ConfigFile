@@ -1,3 +1,4 @@
-CacheRelevanceTime=300
-Host=192.168.1.38
+CacheRelevanceTime=10
+CacheSize=5
+Host=192.168.100.2
 Port=80

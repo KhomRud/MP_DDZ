@@ -1,8 +1,5 @@
 #include "Cacher.h"
 
-#include <sys/stat.h>
-#include <sys/types.h>
-
 Cacher::Cacher(const char* cacheFolder, int cacheSize, int timeIntervalInMin)
 {
     _cacheFolder = cacheFolder;
@@ -98,11 +95,6 @@ void Cacher::WriteToFile(const char* filename, const std::string& data)
     // Запись в бинарный файл
     out.write(data.c_str(), data.length());
     
-    /*
-    for(size_t i = 0; i < data; ++i)
-        out.write((char *)&data[i], sizeof(char));
-     */
-    
     out.close();
 }
 
@@ -142,8 +134,6 @@ std::list<CacheInfo>::iterator Cacher::FindInCache(const std::string& request)
     
     for(std::list<CacheInfo>::iterator it = _data.begin(); it != _data.end(); ++it)
     {
-        /* Нужно оптимизировать и тестировать итераторы как гуляют */
-        
         if(currentTime - it->Time > _timeIntervalInMin * 60)
         {
             DeleteNote(it--);
@@ -173,7 +163,8 @@ void Cacher::DeleteNote(std::list<CacheInfo>::iterator pos)
     
 void Cacher::DeleteEarlyNote()
 {
-    /* Перебором удалить самую давнюю запись */
+    // Перебором удалить самую давнюю запись
+    
     std::list<CacheInfo>::iterator minIt = _data.begin();
     time_t minTime = minIt->Time;
 

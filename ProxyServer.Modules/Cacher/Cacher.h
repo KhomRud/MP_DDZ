@@ -1,15 +1,11 @@
 #pragma once
 
-#include <vector>
-#include <sstream>
 #include <iostream>
 #include <fstream>
 #include <stdlib.h>
-#include <stdexcept>
-#include <ctime>
-#include <stdio.h>
 #include <time.h>
 #include <list>
+#include <sys/stat.h>
 
 #ifndef CACHER_H
 #define CACHER_H
@@ -20,24 +16,7 @@ struct CacheInfo
     std::string AnswerFile;
     int Time;	
 };
-/*
-template <typename T>
-std::string toString(T val)
-{
-    std::ostringstream oss;
-    oss << val;
-    return oss.str();
-}
 
-template<typename T> 
-T fromString(const std::string& s) 
-{
-  std::istringstream iss(s);
-  T res;
-  iss >> res;
-  return res;
-}
-*/
 class Cacher
 {   
 public:

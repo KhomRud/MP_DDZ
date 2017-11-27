@@ -18,6 +18,14 @@
                    displayName="Test Files"
                    projectFiles="false"
                    kind="TEST_LOGICAL_FOLDER">
+      <logicalFolder name="f3"
+                     displayName="CasherTests"
+                     projectFiles="true"
+                     kind="TEST">
+        <itemPath>Casher/CasherTester.cpp</itemPath>
+        <itemPath>Casher/CasherTester.h</itemPath>
+        <itemPath>Casher/CasherTestsRunner.cpp</itemPath>
+      </logicalFolder>
       <logicalFolder name="f1"
                      displayName="ConfiguratorTests"
                      projectFiles="true"
@@ -69,6 +77,12 @@
           </linkerLibItems>
         </linkerTool>
       </compileType>
+      <item path="Casher/CasherTester.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="Casher/CasherTester.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="Casher/CasherTestsRunner.cpp" ex="false" tool="1" flavor2="0">
+      </item>
       <item path="Configurator/ConfiguratorTester.cpp"
             ex="false"
             tool="1"
@@ -112,6 +126,20 @@
         </ccTool>
         <linkerTool>
           <output>${TESTDIR}/TestFiles/f2</output>
+          <linkerLibItems>
+            <linkerOptionItem>`cppunit-config --libs`</linkerOptionItem>
+          </linkerLibItems>
+        </linkerTool>
+      </folder>
+      <folder path="TestFiles/f3">
+        <cTool>
+          <commandLine>`cppunit-config --cflags`</commandLine>
+        </cTool>
+        <ccTool>
+          <commandLine>`cppunit-config --cflags`</commandLine>
+        </ccTool>
+        <linkerTool>
+          <output>${TESTDIR}/TestFiles/f3</output>
           <linkerLibItems>
             <linkerOptionItem>`cppunit-config --libs`</linkerOptionItem>
           </linkerLibItems>
@@ -156,6 +184,12 @@
           </linkerLibItems>
         </linkerTool>
       </compileType>
+      <item path="Casher/CasherTester.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="Casher/CasherTester.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="Casher/CasherTestsRunner.cpp" ex="false" tool="1" flavor2="0">
+      </item>
       <item path="Configurator/ConfiguratorTester.cpp"
             ex="false"
             tool="1"
@@ -199,6 +233,20 @@
         </ccTool>
         <linkerTool>
           <output>${TESTDIR}/TestFiles/f2</output>
+          <linkerLibItems>
+            <linkerOptionItem>`cppunit-config --libs`</linkerOptionItem>
+          </linkerLibItems>
+        </linkerTool>
+      </folder>
+      <folder path="TestFiles/f3">
+        <cTool>
+          <commandLine>`cppunit-config --cflags`</commandLine>
+        </cTool>
+        <ccTool>
+          <commandLine>`cppunit-config --cflags`</commandLine>
+        </ccTool>
+        <linkerTool>
+          <output>${TESTDIR}/TestFiles/f3</output>
           <linkerLibItems>
             <linkerOptionItem>`cppunit-config --libs`</linkerOptionItem>
           </linkerLibItems>

@@ -6,3 +6,4 @@
 */dist/
 */nbdist/
 */.nb-gradle/
+core

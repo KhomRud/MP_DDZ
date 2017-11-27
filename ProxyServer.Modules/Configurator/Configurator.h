@@ -10,8 +10,9 @@
 
 struct ConfigurationData
 {
-    int  ExpirationTime;
+    int  CacheRelevanceTime;
     std::string Host;
+    std::string Port;
 };
 
 

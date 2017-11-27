@@ -10,11 +10,14 @@ void Add(T1& field, T2 value)
 
 void AddArgument(ConfigurationData* result,std::string& argc, std::string& argv) 
 {
-    if(strcmp(argc.c_str(), "ExpirationTime") == 0)
-        Add(result->ExpirationTime, argv);
+    if(strcmp(argc.c_str(), "CacheRelevanceTime") == 0)
+        Add(result->CacheRelevanceTime, argv);
         
     if(strcmp(argc.c_str(), "Host") == 0)
         Add(result->Host, argv);
+    
+    if(strcmp(argc.c_str(), "Port") == 0)
+        Add(result->Port, argv);
 }
 
 ConfigurationData Configurator::Read(const char *filename)

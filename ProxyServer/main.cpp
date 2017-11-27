@@ -8,12 +8,15 @@
 #include <unistd.h>
 #include <string>
 
-#include "../ProxyServer.Modules/Cacher/Cacher.h"
-#include "../ProxyServer.Modules/Sender/Sender.h"
 
+#include "../ProxyServer.Modules/Cacher/NewCacher.h"
+#include "../ProxyServer.Modules/Sender/Sender.h"
+#include "../ProxyServer.Modules/Configurator/Configurator.h"
+
+#define CONFIG_FILE "/home/user/DDZ/MP_DDZ/ConfigFile"
 #define HOST "Host: 192.168.101.129:80"
 
-std::string CreateRequest(char buf[])
+std::string CreateRequest(char buf[], std::string host, std::string port)
 {
     std::string str_buf(buf); // Строка для работы с буфером
 
@@ -32,7 +35,7 @@ std::string CreateRequest(char buf[])
     // Отрезаем от строки хост
     str_buf = str_buf.substr(end, str_buf.length() - end);
 
-    return protocol + HOST + str_buf;
+    return protocol + "Host: " + host + ":" + port + str_buf;
 }
 
 bool IsBadAnswer(std::string answer)
@@ -52,6 +55,8 @@ int main()
     struct sockaddr_in addr; // Адрес сокета
     char buf[1024]; // Буфер для считывания запросов
     std::string answer; // Ответ от сервера
+    
+    ConfigurationData configuration = Configurator::Read(CONFIG_FILE);
     
     // Получаем идентификатор сокета
     listener = socket(AF_INET, SOCK_STREAM, 0);
@@ -79,6 +84,10 @@ int main()
     // Переводим сокет в режим ожидания запросов
     listen(listener, 1);
     
+    // Cache cache("./cachefile.txt", 5, 10);
+    
+    NewCacher cacher("./cachefiles/", 5, 10);
+    
     while(1)
     {
         // Получаем дискриптор клиентского сокета
@@ -90,14 +99,27 @@ int main()
             exit(3);
         }
         
+        std::string str_buf = "";
+
         // Читаем данные из сокета
-        recv(sock, buf, 1024, 0);
+        int receivedBytes = recv(sock, buf, sizeof(buf), 0);
         
-        std::string str_buf(buf);
+        if (receivedBytes < 0)
+        {
+            perror("socket read");
+            exit(5);
+        }
         
-        Cache cache("./cachefile.txt", 5, 1);
+        answer = cacher.Get(str_buf);
         
-        if (cache.IsInCache(str_buf))
+        if(answer != "")
+        {
+            send(sock, answer.c_str(), answer.length(), 0);  
+            continue;
+        }
+        
+        /*
+         * if (cache.IsInCache(str_buf))
         {
             answer = cache.Get(str_buf);
             
@@ -110,25 +132,24 @@ int main()
             send(sock, answer.c_str(), answer.length(), 0);
             
             continue;
-        }
+        }*/
         
         // Создаем запрос для сервера
-        std::string request = CreateRequest(buf);
+        std::string request = CreateRequest(buf, configuration.Host, configuration.Port);
         
         // Создаем объект с помощью которого отсылается запрос на сервер
-        Sender sender("http", "192.168.101.129");
+        Sender sender("http", configuration.Host, configuration.Port);
         
         // Посылаем запрос на сервер и получаем ответ
         answer = sender.Send(request.c_str(), request.length(), true);
         
-        for (int i = 0; i < answer.length(); ++ i)
-                std::cout << answer[i];
+        //for (int i = 0; i < answer.length(); ++ i)
+        //       std::cout << answer[i];
+        
+        cacher.Put(str_buf, answer);
         
         if (!IsBadAnswer(answer))
-        {
             std::cout << std::endl << "good answer" << std::endl;
-            cache.Put(str_buf, answer);
-        }
         else
             std::cout << std::endl << "find bad answer" << std::endl;
         

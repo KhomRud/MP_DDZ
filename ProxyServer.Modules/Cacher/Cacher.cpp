@@ -1,228 +1,190 @@
 #include "Cacher.h"
-#include <time.h>
 
-//Check is file exist?
-bool FileExists(const char *fileName)
-{
-    ifstream ifile(fileName);
-    return (bool)ifile;
-}
+#include <sys/stat.h>
+#include <sys/types.h>
 
-Cache::Cache(const char * cacheFolder, int cacheSize, int timeIntervalInMin)
+Cacher::Cacher(const char* cacheFolder, int cacheSize, int timeIntervalInMin)
 {
     _cacheFolder = cacheFolder;
     _cacheSize   = cacheSize;
     _timeIntervalInMin = timeIntervalInMin;
+    
+    if(std::ifstream(cacheFolder).good())
+        return;
+    
+    if(mkdir(cacheFolder, 0777))
+    {
+        perror("Не удалось создать директорию для кэша");
+        exit(3);
+    }
+}
+
+Cacher::~Cacher()
+{
+    for(std::list<CacheInfo>::iterator it = _data.begin(); it != _data.end(); ++it)
+    {
+        DeleteNote(it--);
+        continue;
+    }
 }
 
 //Add info to cache.
-void Cache::Put(string request, string answer)
+void Cacher::Put(const std::string& request, const std::string& answer)
 {    
-    time_t currentTime = time(NULL); 
+    std::list<CacheInfo>::iterator pos = FindInCache(request);
     
-    if (!Cache::IsInCache(request) && !Cache::IsCacheFull())
-    {
-        
-        string postTime = toString(currentTime);        
-        
-        string strForFile = "Request:"  + toString(request.length()) + ':' + request +
-                            "Answer:"   + toString(answer.length())  + ':' + answer  +
-                            "Time:"     + toString(postTime.length())    + ':' + postTime + '\n';
+    if(pos != _data.end())
+        DeleteNote(pos);
 
-        ofstream casheFile;
+    if(IsCacheFull())
+        DeleteEarlyNote();
+    
+    CacheInfo note;
 
-        casheFile.open(_cacheFolder, ios::app | ios::in);
-        casheFile << strForFile;
-
-        casheFile.close();
-    }
+    note.Request = request;
+    note.AnswerFile = GenerateNewFileName();
+    note.Time = time(NULL);
+            
+    _data.push_back(note);
+    
+    WriteToFile((_cacheFolder + note.AnswerFile).c_str(), answer);
 }
 
 //Loading data from cache.
-string Cache::Get(string request)
+std::string Cacher::Get(const std::string& request)
 {
-//     size_t end = request.find("\r\n");
-//    
-//    request = request.substr(0, end); 
-    string answerByRequest = "";
+    std::list<CacheInfo>::iterator pos = FindInCache(request);
     
-    vector <CacheInfo> structVector = Cache::GetFullCachedData();
+    if(pos == _data.end())
+        return "";
     
-    size_t structCount = structVector.size();
-    for (size_t i = 0; i < structCount; ++i)
+    std::string filename = pos->AnswerFile;
+    
+    return ReadFromFile((_cacheFolder + filename).c_str());
+}
+
+std::string Cacher::ReadFromFile(const char* filename)
+{
+    // Открыть бинарный файл для чтения
+    std::ifstream in(filename, std::ios_base::binary);
+
+    // Проверка корректности открытия файла
+    if (!in.is_open())	
     {
-//        end = structVector[i].Request.find("\r\n");
-//   
-//        string cacheRequest = structVector[i].Request.substr(0, end); 
-//
-//        size_t begin = structVector[i].Request.find("GET");
-//        
-//        cacheRequest = cacheRequest.substr(begin, end);
-//
-//        if (cacheRequest == request)
-//            answerByRequest = structVector[i].Answer;
-        
-        if (structVector[i].Request == request)
-            answerByRequest = structVector[i].Answer;
+        perror("Ошибка открытия файла кэша");
+        exit(2);
     }
-        
-    return answerByRequest;
+    
+    // http://insanecoding.blogspot.ru/2011/11/how-to-read-in-file-in-c.html
+    std::string result((std::istreambuf_iterator<char>(in)), std::istreambuf_iterator<char>());
+    
+    in.close();
+    
+    return result;
 }
 
-//Reading structure form cache.
-vector <CacheInfo> Cache::GetFullCachedData()
+void Cacher::WriteToFile(const char* filename, const std::string& data)
 {
-    CacheInfo cacheData;
-    ifstream casheFile;
-    casheFile.open(_cacheFolder, ios::out);
+    // Открыть бинарный файл для записи
+    std::ofstream out(filename, std::ios_base::binary);
 
-    vector <CacheInfo> structVector;
-    char buf[100];
-
-    while (!casheFile.eof())
+    // Проверка корректности открытия файла
+    if (!out.is_open())	
     {
-        casheFile.getline(buf, 100, ':');
-
-        if (casheFile.eof())
-            break;
-
-        casheFile.getline(buf, 100, ':');
-        int size = atoi(buf);
-        char* request = new char[size + 1];
-        request[size] = 0;
-        casheFile.read(request, size);
-
-        casheFile.getline(buf, 100, ':');
-        casheFile.getline(buf, 100, ':');
-        size = atoi(buf);
-        cout << "Answer size = " << size << endl;
-        
-        char* answer = new char[size + 1];
-        answer[size] = 0;
-        casheFile.read(answer, size);
-
-        casheFile.getline(buf, 100, ':');
-        casheFile.getline(buf, 100, ':');
-        size = atoi(buf);
-        char* time = new char[size + 1];
-        time[size] = 0;
-        casheFile.read(time, size);
-        casheFile.get();
-
-        cacheData.Request = request;
-        cacheData.Answer = answer;
-        cacheData.Time = atoi(time);
-
-        structVector.push_back(cacheData);
-
-
-        delete request;
-        delete answer;
-        delete time;
+        perror("Не удалось создать файл для кэша");
+        exit(5);
     }
-
-    casheFile.close();
-
-    return structVector;
+    
+    // Запись в бинарный файл
+    out.write(data.c_str(), data.length());
+    
+    /*
+    for(size_t i = 0; i < data; ++i)
+        out.write((char *)&data[i], sizeof(char));
+     */
+    
+    out.close();
 }
 
-//Checking being request in the cache already.
-bool Cache::IsInCache(string request)
+std::string Cacher::GenerateNewFileName()
 {
-    bool isInCache = false;
-//    cout << "Request before : " << request << endl;
-//    size_t end = request.find("\r\n");
-//    
-//    request = request.substr(0, end); 
-//    
-//    cout << "Request after : " << request << endl;
+    bool success = false;
+    std::string name;
+    int j = 0;
     
-    if (!FileExists(_cacheFolder))
-        return false;
-    
-    vector <CacheInfo> structVector = Cache::GetFullCachedData();
-
-    size_t structCount = structVector.size();
-       
-    for (size_t i = 0; i < structCount; ++i)
+    while(success == false)
     {
-//        end = structVector[i].Request.find("\r\n");
-//   
-//        string cacheRequest = structVector[i].Request.substr(0, end); 
-//   cout << "cacheRequest before : " << cacheRequest << endl;     
-//        size_t begin = structVector[i].Request.find("GET");
-//        
-//        cacheRequest = cacheRequest.substr(begin, end);
-//         cout << "cacheRequest after : " << cacheRequest << endl;
-//        if (cacheRequest == request)
-//            return true;
-            
-        if (structVector[i].Request == request)
-            isInCache = true;
-    }
-       
-    return false;
-}
-
-//Checking is data quantity more then cache size.
-bool Cache::IsCacheFull()
-{
-    if (!FileExists(_cacheFolder))
-        return false;
-    
-    vector <CacheInfo> structVector = Cache::GetFullCachedData();
-    
-    size_t structCount = structVector.size();
-    
-    return (structVector.size() >= _cacheSize);
-}
-
-void Cache::DeleteExpiredCachedData()
-{
+        time_t currentTime = time(NULL);
+        success = true;
         
-    time_t currentTime = time(NULL); 
-    bool isExpired = false;
-    vector <CacheInfo> dataVector = Cache::GetFullCachedData();
-    
-    size_t requestCount = dataVector.size();
-    
-    for (size_t i = 0; i < requestCount; ++i)
-    {
-        if (currentTime - dataVector[i].Time >= _timeIntervalInMin * 60)
+        for(int i = 20; i < 50; ++i)
         {
-            isExpired = true;
-            dataVector.erase(dataVector.begin() + i);
+            char temp = 'A' + (currentTime % (i + j));
+            name += temp;
         }
-    }
-    
-    //If time is in interval.
-    if(!isExpired)
-        return;       
-    
-    //If file doesn't exists.
-    if(remove(_cacheFolder) != 0)
-        return;
-    
-    requestCount = dataVector.size();
-    
-    if (isExpired)
-    {
-        string finalData;
         
-        for(size_t i = 0; i < requestCount; ++i)
-        {           
-            string oldTime = toString(dataVector[i].Time);
-            string strForFile = "Request:"  + toString(dataVector[i].Request.length())  + ':' + dataVector[i].Request  +
-                                "Answer:"   + toString(dataVector[i].Answer.length())   + ':' + dataVector[i].Answer   +
-                                "Time:"     + toString(oldTime.length()) + ':' + oldTime + '\n';
-            finalData += strForFile;
+        for(std::list<CacheInfo>::iterator it = _data.begin(); it != _data.end() && success == true; ++it)
+        {
+            if(it->AnswerFile == name)
+            {
+                success = false;
+                ++j;
+            }
         }
-            ofstream casheFile;
-
-            casheFile.open(_cacheFolder, ios::app | ios::in);
-            casheFile << finalData;
-
-            casheFile.close();
     }
     
+    return name;
+}
+
+std::list<CacheInfo>::iterator Cacher::FindInCache(const std::string& request)
+{
+    time_t currentTime = time(NULL); 
+    
+    for(std::list<CacheInfo>::iterator it = _data.begin(); it != _data.end(); ++it)
+    {
+        /* Нужно оптимизировать и тестировать итераторы как гуляют */
+        
+        if(currentTime - it->Time > _timeIntervalInMin * 60)
+        {
+            DeleteNote(it--);
+            continue;
+        }
+        
+        if(it->Request == request)
+            return it;
+    }
+    
+    return _data.end();
+}
+
+bool Cacher::IsCacheFull()
+{
+    return _data.size() == _cacheSize;
+}
+
+void Cacher::DeleteNote(std::list<CacheInfo>::iterator pos)
+{
+    std::string file = pos->AnswerFile;
+    
+    _data.erase(pos);
+    
+    remove((_cacheFolder + file).c_str());
+}
+    
+void Cacher::DeleteEarlyNote()
+{
+    /* Перебором удалить самую давнюю запись */
+    std::list<CacheInfo>::iterator minIt = _data.begin();
+    time_t minTime = minIt->Time;
+
+    for(std::list<CacheInfo>::iterator it = _data.begin(); it != _data.end(); ++it)
+    {
+        if(minTime > it->Time)
+        {
+            minIt = it;
+            minTime = it->Time;
+        }
+    }
+    
+    DeleteNote(minIt);
 }

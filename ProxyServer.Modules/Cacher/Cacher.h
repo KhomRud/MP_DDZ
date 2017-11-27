@@ -1,3 +1,5 @@
+#pragma once
+
 #include <vector>
 #include <sstream>
 #include <iostream>
@@ -6,23 +8,23 @@
 #include <stdexcept>
 #include <ctime>
 #include <stdio.h>
+#include <time.h>
+#include <list>
 
-#ifndef TEST_H
-#define TEST_H
-
-using namespace std;
+#ifndef CACHER_H
+#define CACHER_H
 
 struct CacheInfo
 {
-    string Request;
-    string Answer;
-    int    Time;	
+    std::string Request;
+    std::string AnswerFile;
+    int Time;	
 };
-
+/*
 template <typename T>
-string toString(T val)
+std::string toString(T val)
 {
-    ostringstream oss;
+    std::ostringstream oss;
     oss << val;
     return oss.str();
 }
@@ -30,40 +32,38 @@ string toString(T val)
 template<typename T> 
 T fromString(const std::string& s) 
 {
-  istringstream iss(s);
+  std::istringstream iss(s);
   T res;
   iss >> res;
   return res;
 }
-
-class Cache
+*/
+class Cacher
 {   
 public:
     
-    Cache(const char* cacheFolder, int cacheSize, int timeIntervalInMin);
-    
-    void Put(string request, string answer);
-    
-    string Get(string request);
-    
+    Cacher(const char* cacheFolder, int cacheSize, int timeIntervalInMin);
+    ~Cacher();
+    void Put(const std::string& request, const std::string& answer);
+    std::string Get(const std::string& request);
     void DeleteExpiredCachedData();
     
-    bool IsTimeExpired();
-    
-    bool IsInCache(string request);
-    
 private:
-    
+    std::list<CacheInfo>::iterator FindInCache(const std::string& request);
     bool IsCacheFull();
     
-    vector <CacheInfo>  GetFullCachedData();
+    std::string ReadFromFile(const char* filename);
+    void WriteToFile(const char* filename, const std::string& data);
+    std::string GenerateNewFileName();
+    
+    void DeleteNote(std::list<CacheInfo>::iterator pos);
+    void DeleteEarlyNote();
         
     const char* _cacheFolder;    
     int         _cacheSize;
-    int         _timeIntervalInMin;    
+    int         _timeIntervalInMin;   
+    std::list<CacheInfo> _data;
 };
 
-
-
-#endif /* TEST_H */
+#endif /* NEWCACHER_H */
 

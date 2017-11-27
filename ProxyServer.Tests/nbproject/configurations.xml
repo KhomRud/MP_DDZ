@@ -19,12 +19,12 @@
                    projectFiles="false"
                    kind="TEST_LOGICAL_FOLDER">
       <logicalFolder name="f3"
-                     displayName="CasherTests"
+                     displayName="CacherTests"
                      projectFiles="true"
                      kind="TEST">
-        <itemPath>Casher/CasherTester.cpp</itemPath>
-        <itemPath>Casher/CasherTester.h</itemPath>
-        <itemPath>Casher/CasherTestsRunner.cpp</itemPath>
+        <itemPath>Cacher/CacherTester.cpp</itemPath>
+        <itemPath>Cacher/CacherTester.h</itemPath>
+        <itemPath>Cacher/CacherTestsRunner.cpp</itemPath>
       </logicalFolder>
       <logicalFolder name="f1"
                      displayName="ConfiguratorTests"
@@ -77,11 +77,11 @@
           </linkerLibItems>
         </linkerTool>
       </compileType>
-      <item path="Casher/CasherTester.cpp" ex="false" tool="1" flavor2="0">
+      <item path="Cacher/CacherTester.cpp" ex="false" tool="1" flavor2="0">
       </item>
-      <item path="Casher/CasherTester.h" ex="false" tool="3" flavor2="0">
+      <item path="Cacher/CacherTester.h" ex="false" tool="3" flavor2="0">
       </item>
-      <item path="Casher/CasherTestsRunner.cpp" ex="false" tool="1" flavor2="0">
+      <item path="Cacher/CacherTestsRunner.cpp" ex="false" tool="1" flavor2="0">
       </item>
       <item path="Configurator/ConfiguratorTester.cpp"
             ex="false"
@@ -184,11 +184,11 @@
           </linkerLibItems>
         </linkerTool>
       </compileType>
-      <item path="Casher/CasherTester.cpp" ex="false" tool="1" flavor2="0">
+      <item path="Cacher/CacherTester.cpp" ex="false" tool="1" flavor2="0">
       </item>
-      <item path="Casher/CasherTester.h" ex="false" tool="3" flavor2="0">
+      <item path="Cacher/CacherTester.h" ex="false" tool="3" flavor2="0">
       </item>
-      <item path="Casher/CasherTestsRunner.cpp" ex="false" tool="1" flavor2="0">
+      <item path="Cacher/CacherTestsRunner.cpp" ex="false" tool="1" flavor2="0">
       </item>
       <item path="Configurator/ConfiguratorTester.cpp"
             ex="false"

@@ -7,6 +7,7 @@
 #include <sstream>
 #include <unistd.h>
 #include <string>
+#include <csignal>
 
 #include "../ProxyServer.Modules/Cacher/Cacher.h"
 #include "../ProxyServer.Modules/Sender/Sender.h"
@@ -14,6 +15,8 @@
 
 #define CONFIG_FILE "/home/user/DDZ/MP_DDZ/ConfigFile"
 
+bool turn = true;  
+int listener; // Идентификатор принимающего сокета
 std::string CreateRequest(char buf[], std::string host, std::string port)
 {
     std::string str_buf(buf); // Строка для работы с буфером
@@ -47,13 +50,30 @@ bool IsGoodAnswer(std::string answer)
     return first_str.find("200 OK") != std::string::npos;
 }
 
+void TurnOffServer(int signal)
+{
+    if (signal == SIGINT)
+    {
+        turn = false;
+    
+        close(listener);
+    }
+    
+    if (signal == SIGUSR1)
+    {
+        std::cout << " Здесь меняют конфиг" << std::endl;
+    }
+}
+
 int main()
 {
     int sock; // Идентификатор клиентского сокета
-    int listener; // Идентификатор принимающего сокета
     struct sockaddr_in addr; // Адрес сокета
     char buf[1024]; // Буфер для считывания запросов
     std::string answer; // Ответ от сервера
+    
+    signal(SIGINT, TurnOffServer);
+    signal(SIGUSR1, TurnOffServer);
     
     // Загружаем конфигурационный файл
     ConfigurationData configuration = Configurator::Read(CONFIG_FILE);
@@ -83,7 +103,7 @@ int main()
 
     // Переводим сокет в режим ожидания запросов
     listen(listener, 1);
-    
+
     // Инициализируем кешер с настройками, заданными в конфигурационном файле
     Cacher cacher("./cachefiles/", configuration.CacheSize, configuration.CacheRelevanceTime);
     
@@ -91,6 +111,10 @@ int main()
     {
         // Получаем дискриптор клиентского сокета
         sock = accept(listener, NULL, NULL);
+        
+        // Если флаг работы сервера сброшен, то выходим
+        if(!turn)
+            break;
         
         // Если дескриптор не получен, то выходим с ошибкой
         if(sock < 0)
@@ -118,7 +142,11 @@ int main()
         if(answer != "")
         {
             std::cout << std::endl << "Найдено в кэше";
-            send(sock, answer.c_str(), answer.length(), 0);  
+            
+            send(sock, answer.c_str(), answer.length(), 0); 
+            
+            close(sock);
+            
             continue;
         }
                

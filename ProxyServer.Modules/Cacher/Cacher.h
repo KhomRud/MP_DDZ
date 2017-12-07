@@ -15,6 +15,7 @@ struct CacheInfo
 {
     std::string Request;
     std::string AnswerFile;
+    size_t fileSize;
     int Time;	
 };
 /**
@@ -46,6 +47,11 @@ public:
      */
     std::string Get(const std::string& request);
     
+    /**
+     * Изменяем размер кеша
+     * @param size  Размер кеша.
+     */
+    void Resize(size_t size);
 private:
     
     /**
@@ -57,14 +63,22 @@ private:
     
     /**
      * Проверка на заполненность кеша.
-     * @return 
+     * @return Возвращает результат проверка.
      */
     bool IsCacheFull();
     
     /**
+     * Проверка размера файла 
+     * перед записью в кеш.
+     * @param answer ответ от сервера.
+     * @return       Возвращает результат проверки.
+     */
+    bool checkDataSize(std::string answer);
+    
+    /**
      * Считываем ответ из файла.
      * @param filename имя файла.
-     * @return         возвращет прочитанный ответ из файла.
+     * @return         Возвращет прочитанный ответ из файла.
      */
     std::string ReadFromFile(const char* filename);
     
@@ -92,12 +106,11 @@ private:
      */
     void DeleteEarlyNote();
         
-    const char* _cacheFolder;        // Имя директории   
-    int         _cacheSize;          // Размер кеша.
-    int         _timeIntervalInMin;  // Время хранения кеша.
-    
-    //Лист для хранения информации о кеше.
-    std::list<CacheInfo> _data;
+    const char* _cacheFolder;          // Имя директории   
+    int         _cacheSize;            // Размер кеша.
+    int         _timeIntervalInMin;    // Время хранения кеша.
+    size_t      _currentCacheSize = 0; // Текущий размер кеша.
+    std::list<CacheInfo> _data;        //Лист для хранения информации о кеше.
 };
 
 #endif /* NEWCACHER_H */

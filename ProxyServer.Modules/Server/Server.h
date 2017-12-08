@@ -73,9 +73,11 @@ private:
     int _listener; // Идентификатор принимающего сокета
     bool _listening;
     int _theadsCount;
-    Cacher* _cacher;
+    const char* _config;
     
     ConfigurationData _configuration;
+    Cacher* _cacher;
+    
     
     
     pthread_t _mainThread;

@@ -33,7 +33,8 @@ void Server::FindHostAndPort(std::string request, std::string& host, std::string
 Server::Server(const char* config)
 {
     // Загружаем конфигурационный файл
-    _configuration = Configurator::Read(config);
+    _config = config
+    _configuration = Configurator::Read(_config);
 
     // Адрес сокета
     struct sockaddr_in addr;
@@ -159,14 +160,15 @@ void Server::Stop()
 {
     _listening = false;
     close(_listener);
+    
+    exit(1);
 }
 
 void Server::UpdateConfig()
 {
-    
+    _configuration = Configurator::Read(_config);
+    _cacher->Resize(_configuration.CacheSize);
 }
-
-
 
 bool Server::IsGoodAnswer(std::string answer)
 {

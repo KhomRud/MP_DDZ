@@ -12,8 +12,47 @@ std::string ToString(T val)
     return temp;
 }
 
+std::string GetParams(std::string request)
+{
+    size_t begin;
+    size_t end;
+    
+    std::string params("");
+    
+    if (request.substr(0, 3) == "GET")
+    {
+        end = request.find("\r\n");
+        
+        params = request.substr(0, end);
+        
+        begin = request.find("?");
+        
+        if (begin == std::string::npos)
+            return params;
+        
+        end = params.find_last_of("HTTP");
+        
+        params = params.substr(begin + 1, end - begin - 4);
+    }
+    else
+    {
+        begin = request.find("\r\n\r\n");
+        
+        if (begin == std::string::npos)
+            return params;
+        
+        params = request.substr(begin, request.length() - begin);
+    }
+    
+    return params;
+}
+
 void Server::FindHostAndPort(std::string request, std::string& host, std::string& port)
 {
+    std::string params = GetParams(request);
+        
+    std::cout << params << std::endl;
+    
     // Ищем конец строки, в которой записан протокол
     size_t pos = request.find("Host: ");
     size_t endHost = request.find(":", pos + 6);

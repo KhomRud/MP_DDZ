@@ -58,12 +58,15 @@ public:
     ~Server();
     
     
-    void Start();
+    void Start();    
+    void Stop();
     
-   void FindHostAndPort(std::string str, std::string& host, std::string& port);
+    void UpdateConfig();
+
+private:
+    void FindHostAndPort(std::string str, std::string& host, std::string& port);
     
     bool static IsGoodAnswer(std::string answer);
-    void TurnOffServer(int signal);
     
 private:
     
@@ -71,6 +74,8 @@ private:
     bool _listening;
     int _theadsCount;
     Cacher* _cacher;
+    
+    ConfigurationData _configuration;
     
     
     pthread_t _mainThread;

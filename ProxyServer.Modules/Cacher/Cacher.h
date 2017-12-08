@@ -109,7 +109,7 @@ private:
     const char* _cacheFolder;          // Имя директории   
     int         _cacheSize;            // Размер кеша.
     int         _timeIntervalInMin;    // Время хранения кеша.
-    size_t      _currentCacheSize = 0; // Текущий размер кеша.
+    size_t      _currentCacheSize; // Текущий размер кеша.
     std::list<CacheInfo> _data;        //Лист для хранения информации о кеше.
 };
 

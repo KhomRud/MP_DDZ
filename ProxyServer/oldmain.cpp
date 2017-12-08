@@ -15,6 +15,7 @@
 
 #define CONFIG_FILE "/home/user/DDZ/MP_DDZ/ConfigFile"
 
+/*
 bool turn = true;  
 int listener; // Идентификатор принимающего сокета
 std::string CreateRequest(char buf[], std::string host, std::string port)
@@ -49,21 +50,7 @@ bool IsGoodAnswer(std::string answer)
      
     return first_str.find("200 OK") != std::string::npos;
 }
-
-void TurnOffServer(int signal)
-{
-    if (signal == SIGINT)
-    {
-        turn = false;
-    
-        close(listener);
-    }
-    
-    if (signal == SIGUSR1)
-    {
-        std::cout << " Здесь меняют конфиг" << std::endl;
-    }
-}
+*/
 /*
 int oldmain()
 {

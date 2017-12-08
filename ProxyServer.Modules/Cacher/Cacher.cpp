@@ -5,6 +5,7 @@ Cacher::Cacher(const char* cacheFolder, int cacheSize, int timeIntervalInMin)
     _cacheFolder = cacheFolder;
     _cacheSize   = cacheSize;
     _timeIntervalInMin = timeIntervalInMin;
+    _currentCacheSize = 0;
     
     //Проверка на созданность.
     if(std::ifstream(cacheFolder).good())

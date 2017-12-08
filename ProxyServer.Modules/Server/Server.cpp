@@ -33,7 +33,7 @@ void Server::FindHostAndPort(std::string request, std::string& host, std::string
 Server::Server(const char* config)
 {
     // Загружаем конфигурационный файл
-    ConfigurationData configuration = Configurator::Read(config);
+    _configuration = Configurator::Read(config);
 
     // Адрес сокета
     struct sockaddr_in addr;
@@ -50,7 +50,7 @@ Server::Server(const char* config)
     // Задаем семейство адресов
     addr.sin_family = AF_INET;
     // Задаем порт
-    addr.sin_port = htons(configuration.Port);
+    addr.sin_port = htons(_configuration.Port);
     // Задаем принимаемые ip адреса
     addr.sin_addr.s_addr = htonl(INADDR_ANY);
 
@@ -65,7 +65,7 @@ Server::Server(const char* config)
     listen(_listener, 1);
 
     // Инициализируем кешер с настройками, заданными в конфигурационном файле
-    _cacher = new Cacher("./cachefiles/", configuration.CacheSize, configuration.CacheRelevanceTime);
+    _cacher = new Cacher("./cachefiles/", _configuration.CacheSize, _configuration.CacheRelevanceTime);
 
     _listening = false;
     _theadsCount = 5;
@@ -81,9 +81,6 @@ void Server::Start()
     char buf[2050]; // Буфер для считывания запросов
     
     _listening = true;
-    
-    /*signal(SIGINT, TurnOffServer);
-    signal(SIGUSR1, TurnOffServer);*/
     
     while(_listening)
     {
@@ -158,19 +155,18 @@ void Server::Start()
     }
 }
 
-void Server::TurnOffServer(int signal)
+void Server::Stop()
 {
-    if (signal == SIGINT)
-    {
-        _listening = false;
-        close(_listener);
-    }
-    
-    if (signal == SIGUSR1)
-    {
-        std::cout << " Здесь меняют конфиг" << std::endl;
-    }
+    _listening = false;
+    close(_listener);
 }
+
+void Server::UpdateConfig()
+{
+    
+}
+
+
 
 bool Server::IsGoodAnswer(std::string answer)
 {

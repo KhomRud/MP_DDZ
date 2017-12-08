@@ -21,15 +21,7 @@
 #ifndef SENDER_H
 #define SENDER_H
 
-template <typename T>
-int ToInt(T val)
-{
-    std::stringstream ss;
-    ss << val;
-    int temp;
-    ss >> temp;
-    return temp;
-}
+
 
 /** 
  * Устанавливает соединение с хостом по протоколу и отправляет сообщения с возможностью получения 
@@ -42,17 +34,8 @@ public:
      * @param host      Адрес хоста
      * @param host      Порт хоста
      */
-    Sender(std::string protocol, std::string host, std::string port);
+    Sender(std::string protocol, std::string host, int port);
     ~Sender();
-
-    /**
-     * Оправить GET запрос на хост.
-     * @param path      Путь, по которому идёт запрос
-     * @param params    Параметры запроса
-     * @return          Ответ сервера
-     * dfgdg
-     */
-    std::string SendGET(std::string path, std::vector< std::pair<std::string, std::string> > params);
 
     /**
      * Оправить произвольный запрос на хост.
@@ -62,15 +45,6 @@ public:
      * @return              Ответ сервера
      */
     std::string Send(const char * header, size_t length, bool needAnswer = true);
-
-private:
-
-    /**
-     * Функция по преобразованию вектора параметров в строку 
-     * @param params    Параметры
-     * @return          Строка в GET-виде с параметрами.
-     */
-    std::string ConvertParams(std::vector< std::pair< std::string, std::string> > params);
 
 private:
     int _socket; // Идентификатор сокета

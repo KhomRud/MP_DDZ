@@ -13,6 +13,7 @@
                    displayName="Source Files"
                    projectFiles="true">
       <itemPath>main.cpp</itemPath>
+      <itemPath>oldmain.cpp</itemPath>
     </logicalFolder>
     <logicalFolder name="TestFiles"
                    displayName="Test Files"
@@ -95,9 +96,35 @@
                             perm="755"
                             owner="root"
                             group="bin"/>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/libProxyServer.Modules.so"
+                            from="${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/libProxyServer.Modules.so"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/libProxyServer.Modules.so"
+                            from="${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/libProxyServer.Modules.so"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
+          <packFileListElem type="File"
+                            to="${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}"
+                            from="${OUTPUT_PATH}"
+                            perm="755"
+                            owner="root"
+                            group="bin"/>
         </packFileList>
       </packaging>
       <item path="main.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="oldmain.cpp" ex="false" tool="1" flavor2="0">
       </item>
     </conf>
     <conf name="Release" type="1">
@@ -137,6 +164,8 @@
         </linkerTool>
       </compileType>
       <item path="main.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="oldmain.cpp" ex="false" tool="1" flavor2="0">
       </item>
     </conf>
   </confs>

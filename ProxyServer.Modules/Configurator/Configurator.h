@@ -13,7 +13,7 @@ struct ConfigurationData
     int CacheRelevanceTime;
     int CacheSize;
     std::string Host;
-    std::string Port;
+    int Port;
 };
 
 

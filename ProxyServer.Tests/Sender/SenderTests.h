@@ -19,8 +19,9 @@
 class SenderTests : public CPPUNIT_NS::TestFixture {
     CPPUNIT_TEST_SUITE(SenderTests);
 
-    CPPUNIT_TEST(SimpleTest1);
+    CPPUNIT_TEST(SimpleTest3);
     CPPUNIT_TEST(SimpleTest2);
+    CPPUNIT_TEST(SimpleTest1);
 
     CPPUNIT_TEST_SUITE_END();
 
@@ -32,7 +33,9 @@ public:
 
 private:
     void SimpleTest1();
-    void SimpleTest2();
+    void SimpleTest2(); 
+    void SimpleTest3();
+
 };
 
 #endif /* SENDERTESTS_H */

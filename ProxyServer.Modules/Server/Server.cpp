@@ -33,7 +33,7 @@ void Server::FindHostAndPort(std::string request, std::string& host, std::string
 Server::Server(const char* config)
 {
     // Загружаем конфигурационный файл
-    _config = config
+    _config = config;
     _configuration = Configurator::Read(_config);
 
     // Адрес сокета

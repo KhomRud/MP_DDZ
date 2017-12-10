@@ -41,16 +41,50 @@ std::string GetParams(std::string request)
         if (begin == std::string::npos)
             return params;
         
-        params = request.substr(begin, request.length() - begin);
+        params = request.substr(begin + 4, request.length() - begin - 4);
     }
     
     return params;
 }
 
+std::string GetPath(std::string request)
+{
+    size_t begin;
+    size_t end;
+    
+    std::string path("");
+    
+    begin = request.find("http://");
+    end = request.find("\r\n");
+
+    begin += 7;
+
+    path = request.substr(begin, end - begin);
+
+    begin = path.find("/");
+    end = path.find_last_of("HTTP");
+
+    ++begin;    
+
+    path = path.substr(begin, end - begin - 4);
+    
+    if (request.substr(0, 3) == "GET")
+    {
+        end = path.find("?");
+        
+        if (end == std::string::npos)
+            return path;
+        
+        path = path.substr(0, end);
+    }
+    
+    return path;
+}
+
 void Server::ParseRequest(std::string request, RequestData& data)
 {
     data.Params = GetParams(request);
-    data.Path = "";
+    data.Path = GetPath(request);
         
     // Ищем конец строки, в которой записан протокол
     size_t pos = request.find("Host: ");

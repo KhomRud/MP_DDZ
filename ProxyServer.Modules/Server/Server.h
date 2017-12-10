@@ -11,7 +11,8 @@
 #include <string>
 #include <pthread.h>
 #include <csignal>
-
+#include <utility>
+#include <vector>
 
 #include "../Configurator/Configurator.h"
 #include "../Cacher/Cacher.h"

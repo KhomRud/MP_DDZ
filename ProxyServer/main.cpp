@@ -12,13 +12,13 @@ void TurnOffServer(int signal)
     if (signal == SIGINT)
     {
         ptr->Stop();
-        std::cout << "Остановка сервера !!!\n";
+        std::cout << "\nОстановка сервера !!!\n";
     }
     
     if (signal == SIGUSR1)
     {
         ptr->UpdateConfig();
-        std::cout << "Конфиг обновлен\n";
+        std::cout << "\nКонфиг обновлен\n";
     }
 }
 

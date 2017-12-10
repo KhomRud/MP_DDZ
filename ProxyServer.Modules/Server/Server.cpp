@@ -25,10 +25,10 @@ std::string GetParams(std::string request)
         
         params = request.substr(0, end);
         
-        begin = request.find("?");
+        begin = params.find("?");
         
         if (begin == std::string::npos)
-            return params;
+            return "";
         
         end = params.find_last_of("HTTP");
         
@@ -50,6 +50,7 @@ std::string GetParams(std::string request)
 void Server::ParseRequest(std::string request, RequestData& data)
 {
     data.Params = GetParams(request);
+    data.Path = "";
         
     // Ищем конец строки, в которой записан протокол
     size_t pos = request.find("Host: ");
@@ -65,7 +66,6 @@ void Server::ParseRequest(std::string request, RequestData& data)
     }
     
     data.Host = request.substr(pos + 6, endHost - pos - 6);
-    data.Path = "";
 }
 
 Server::Server(const char* config)
@@ -152,6 +152,9 @@ void Server::Start()
         // Парсим адрес хоста
         RequestData data;
         ParseRequest(request, data); 
+        
+        std::string head = request.substr(0, request.find("\r\n"));
+        std::cout << "Head of request: " << head << std::endl;
         
         std::string url = data.Host + ":"+ data.Port + "/" + data.Path + "?" + data.Params;
         std::cout << "Parsed url: " << url << std::endl;

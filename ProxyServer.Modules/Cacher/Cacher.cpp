@@ -22,11 +22,8 @@ Cacher::Cacher(const char* cacheFolder, int cacheSize, int timeIntervalInMin)
 Cacher::~Cacher()
 {
     // Производим удаление закешированных данных.
-    for(std::list<CacheInfo>::iterator it = _data.begin(); it != _data.end(); ++it)
-    {
-        DeleteNote(it--);
-        continue;
-    }
+    for(std::list<CacheInfo>::iterator it = _data.begin(); it != _data.end(); )
+        DeleteNote(it++);
 }
 
 void Cacher::Put(const std::string& request, const std::string& answer)
@@ -48,11 +45,8 @@ void Cacher::Put(const std::string& request, const std::string& answer)
         return;
     
     // Если кеш переполнен, удалить ранние записи.
-    if(IsCacheFull())
-    { 
-        while(note.fileSize > _cacheSize - _currentCacheSize)
-            DeleteEarlyNote();
-    }
+    while(note.fileSize > _cacheSize - _currentCacheSize)
+        DeleteEarlyNote();
     
     // Записываем размер свободного пространства в кеше.
     _currentCacheSize += note.fileSize;
@@ -196,9 +190,7 @@ void Cacher::Resize(size_t size)
     // пока текущий размер кеша
     // не станет соответствовать новому размеру.
     while(_currentCacheSize > size)
-    {
         DeleteEarlyNote();
-    }
     
     _cacheSize = size;
 }

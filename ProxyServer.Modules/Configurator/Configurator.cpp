@@ -16,9 +16,6 @@ void AddArgument(ConfigurationData* result,std::string& argc, std::string& argv)
     if(strcmp(argc.c_str(), "CacheSize") == 0)
         Add(result->CacheSize, argv);
         
-    if(strcmp(argc.c_str(), "Host") == 0)
-        Add(result->Host, argv);
-    
     if(strcmp(argc.c_str(), "Port") == 0)
         Add(result->Port, argv);
 }

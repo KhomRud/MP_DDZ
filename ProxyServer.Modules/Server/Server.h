@@ -13,6 +13,7 @@
 #include <csignal>
 #include <utility>
 #include <vector>
+#include <fcntl.h>
 
 #include "../Configurator/Configurator.h"
 #include "../Cacher/Cacher.h"
@@ -39,57 +40,47 @@ struct RequestData
     std::string Params;
 };
 
-struct ThreadData
-{
-    int Sock;
-    std::string Request;
-    std::string Host;
-    std::string Port;
-    
-    Cacher* CacherObject;
-    bool* Listening;
-    int Listener;
-};
-
-struct MainThreadData
-{
-
-};
-
 class Server
 {   
 public:
     /**
-     * 
-     * @param cacheFolder           Директория для записи ответов.
+     * @param config    Путь до конфигурационного файла           .
      */
     Server(const char* config);
     ~Server();
     
-    
+    /**
+     * Запуск сервера
+     */
     void Start();    
+        
+    /**
+     * Остановка сервера
+     */
     void Stop();
     
+    /**
+     * перезагрузить конфиг файл
+     */
     void UpdateConfig();
 
 private:
-    void ParseRequest(std::string request, RequestData& data);
     
-    bool static IsGoodAnswer(std::string answer);
+    /**
+     * Распарсить запрос
+     * @param request    Запрос
+     * @param data    Возвращаемая структура с частями запроса         .
+     */
+    void ParseRequest(std::string request, RequestData& data);
     
 private:
     
     int _listener; // Идентификатор принимающего сокета
-    bool _listening;
-    int _theadsCount;
-    const char* _config;
+    bool _listening; // флаг работы сервера
+    const char* _config; // Путь до конфига
     
-    ConfigurationData _configuration;
-    Cacher* _cacher;
-    
-    
-    
-    pthread_t _mainThread;
+    ConfigurationData _configuration; // Текущая конфигурация
+    Cacher* _cacher;    // Объект кешера
 };
 
 

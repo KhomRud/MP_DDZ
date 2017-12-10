@@ -5,7 +5,6 @@
                    displayName="Header Files"
                    projectFiles="true">
       <itemPath>Cacher/Cacher.h</itemPath>
-      <itemPath>Cacher/CacherOld.h</itemPath>
       <itemPath>Configurator/Configurator.h</itemPath>
       <itemPath>Sender/Sender.h</itemPath>
       <itemPath>Server/Server.h</itemPath>
@@ -18,7 +17,6 @@
                    displayName="Source Files"
                    projectFiles="true">
       <itemPath>Cacher/Cacher.cpp</itemPath>
-      <itemPath>Cacher/CacherOld.cpp</itemPath>
       <itemPath>Configurator/Configurator.cpp</itemPath>
       <itemPath>Sender/Sender.cpp</itemPath>
       <itemPath>Server/Server.cpp</itemPath>
@@ -48,10 +46,6 @@
       <item path="Cacher/Cacher.cpp" ex="false" tool="1" flavor2="0">
       </item>
       <item path="Cacher/Cacher.h" ex="false" tool="3" flavor2="0">
-      </item>
-      <item path="Cacher/CacherOld.cpp" ex="false" tool="1" flavor2="0">
-      </item>
-      <item path="Cacher/CacherOld.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="Configurator/Configurator.cpp" ex="false" tool="1" flavor2="0">
       </item>
@@ -89,10 +83,6 @@
       <item path="Cacher/Cacher.cpp" ex="false" tool="1" flavor2="0">
       </item>
       <item path="Cacher/Cacher.h" ex="false" tool="3" flavor2="0">
-      </item>
-      <item path="Cacher/CacherOld.cpp" ex="false" tool="1" flavor2="0">
-      </item>
-      <item path="Cacher/CacherOld.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="Configurator/Configurator.cpp" ex="false" tool="1" flavor2="0">
       </item>

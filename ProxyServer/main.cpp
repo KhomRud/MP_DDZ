@@ -6,13 +6,15 @@
 
 Server* ptr;
 
+// Обработчик сигналов
 void TurnOffServer(int signal)
 {
-    
+    // Остановка сервера
     if (signal == SIGINT)
     {
         ptr->Stop();
-        std::cout << "\nОстановка сервера !!!\n";
+        delete ptr;
+        std::cout << "\nОстановка сервера !!!";
     }
     
     if (signal == SIGUSR1)

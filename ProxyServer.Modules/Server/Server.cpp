@@ -1,15 +1,18 @@
+#include <asm-generic/errno-base.h>
+
 #include "Server.h"
 
-bool turn = true;  
+bool turn = true; 
 
-template <typename T>
-std::string ToString(T val)
+bool IsGoodAnswer(std::string answer)
 {
-    std::stringstream ss;
-    ss << val;
-    int temp;
-    ss >> temp;
-    return temp;
+    // Находим конец строки
+    size_t end = answer.find("\r\n");
+    
+    // Получаем из ответа перувую строку
+    std::string first_str = answer.substr(0, end + 2); 
+     
+    return first_str.find("200 OK") != std::string::npos;
 }
 
 std::string GetParams(std::string request)
@@ -113,7 +116,7 @@ Server::Server(const char* config)
 
     // Получаем идентификатор сокета
     _listener = socket(AF_INET, SOCK_STREAM, 0);
-
+  
     if (_listener < 0)
     {
         perror("socket");
@@ -141,7 +144,6 @@ Server::Server(const char* config)
     _cacher = new Cacher("./cachefiles/", _configuration.CacheSize, _configuration.CacheRelevanceTime);
 
     _listening = false;
-    _theadsCount = 5;
 }
     
 Server::~Server()
@@ -151,7 +153,7 @@ Server::~Server()
 
 void Server::Start()
 {
-    char buf[2050]; // Буфер для считывания запросов
+    char buf[2000]; // Буфер для считывания запросов
     
     _listening = true;
     
@@ -170,18 +172,38 @@ void Server::Start()
             perror("accept");
             exit(3);
         }
-
-        // Читаем данные из сокета
-        int receivedBytes = recv(sock, buf, sizeof(buf), 0);
         
-        // Если из сокета не получено данных, то переходим к ожиданию следующего запроса
-        if (receivedBytes < 0)
+        std::string request = "";
+        
+        // Читаем данные из сокета, но по частям
+        int receivedBytes = recv(sock, buf, sizeof(buf), 0);
+        while(receivedBytes != 0)
         {
-            perror("socket read");
+            if(receivedBytes < 0)
+            {
+                perror("Ошибка при получении данных запроса");
+                break;
+            }
+
+            request.append(buf, receivedBytes); 
+
+            if(receivedBytes < sizeof(buf))
+                break;
+
+            receivedBytes = recv(sock, buf, sizeof(buf), 0);
+        }
+        
+        if(request == "")
+        {
+            close(sock);
             continue;
         }
         
-        std::string request(buf);
+        if (request.substr(0, 7) == "CONNECT")
+        {
+            close(sock);
+            continue;
+        }
         
         // Парсим адрес хоста
         RequestData data;
@@ -192,19 +214,17 @@ void Server::Start()
         
         std::string url = data.Host + ":"+ data.Port + "/" + data.Path + "?" + data.Params;
         std::cout << "Parsed url: " << url << std::endl;
-                
-        // _DO_ Проверка по ключу - переделать функцию выше, чтобы она находила и параметры.
         
         std::string answer = "";
         
-        /*
+        
         // Проверяем в кэше
         answer = _cacher->Get(request);
-        */
+                
         // Если найдено в кеше, то сразу отправляем ответ
         if(answer != "")
         {
-            std::cout << std::endl << "Найдено в кэше";
+            std::cout << "Найдено в кэше" << std::endl;
             
             send(sock, answer.c_str(), answer.length(), 0); 
             
@@ -223,8 +243,8 @@ void Server::Start()
         std::cout << "Отправляю ответ размера " <<  answer.length() << "\n";
         
         // Если по запросу найден ответ, то кешируем его
-        /*if (IsGoodAnswer(answer))
-            _cacher->Put(request, answer);*/
+        if (IsGoodAnswer(answer))
+            _cacher->Put(request, answer);
         
         // Отправляем ответ пользователю
         send(sock, answer.c_str(), answer.length(), 0);
@@ -238,8 +258,6 @@ void Server::Stop()
 {
     _listening = false;
     close(_listener);
-    
-    exit(1);
 }
 
 void Server::UpdateConfig()
@@ -248,13 +266,3 @@ void Server::UpdateConfig()
     _cacher->Resize(_configuration.CacheSize);
 }
 
-bool Server::IsGoodAnswer(std::string answer)
-{
-    // Находим конец строки
-    size_t end = answer.find("\r\n");
-    
-    // Получаем из ответа перувую строку
-    std::string first_str = answer.substr(0, end + 2); 
-     
-    return first_str.find("200 OK") != std::string::npos;
-}

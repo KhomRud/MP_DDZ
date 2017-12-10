@@ -17,6 +17,7 @@
 #include <stdio.h>
 #include <sstream>
 #include <unistd.h>
+#include <fcntl.h>
 
 #ifndef SENDER_H
 #define SENDER_H

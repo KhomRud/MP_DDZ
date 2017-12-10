@@ -47,26 +47,25 @@ std::string GetParams(std::string request)
     return params;
 }
 
-void Server::FindHostAndPort(std::string request, std::string& host, std::string& port)
+void Server::ParseRequest(std::string request, RequestData& data)
 {
-    std::string params = GetParams(request);
+    data.Params = GetParams(request);
         
-    std::cout << params << std::endl;
-    
     // Ищем конец строки, в которой записан протокол
     size_t pos = request.find("Host: ");
     size_t endHost = request.find(":", pos + 6);
     size_t endPort = request.find( "\r\n", pos + 6);
     
     if(endPort > endHost)
-        port = request.substr(endHost + 1, endPort - endHost - 1);
+        data.Port = request.substr(endHost + 1, endPort - endHost - 1);
     else
     {
         endHost = endPort;
-        port = "80";
+        data.Port = "80";
     }
     
-    host = request.substr(pos + 6, endHost - pos - 6);
+    data.Host = request.substr(pos + 6, endHost - pos - 6);
+    data.Path = "";
 }
 
 Server::Server(const char* config)
@@ -150,17 +149,21 @@ void Server::Start()
         
         std::string request(buf);
         
-        
         // Парсим адрес хоста
-        std::string host;
-        std::string port;
-        FindHostAndPort(request, host, port); 
+        RequestData data;
+        ParseRequest(request, data); 
         
+        std::string url = data.Host + ":"+ data.Port + "/" + data.Path + "?" + data.Params;
+        std::cout << "Parsed url: " << url << std::endl;
+                
         // _DO_ Проверка по ключу - переделать функцию выше, чтобы она находила и параметры.
         
-        // Проверяем в кэше
-        std::string answer = _cacher->Get(request);
+        std::string answer = "";
         
+        /*
+        // Проверяем в кэше
+        answer = _cacher->Get(request);
+        */
         // Если найдено в кеше, то сразу отправляем ответ
         if(answer != "")
         {
@@ -169,12 +172,11 @@ void Server::Start()
             send(sock, answer.c_str(), answer.length(), 0); 
             
             close(sock);
-            
             continue;
         }
-                       
+         
         // Создаем объект с помощью которого отсылается запрос на сервер
-        Sender sender("http", host, ToInt(port));
+        Sender sender("http", data.Host, ToInt(data.Port));
         
         std::cout << "Отправляю запрос" << "\n";
         
@@ -184,8 +186,8 @@ void Server::Start()
         std::cout << "Отправляю ответ размера " <<  answer.length() << "\n";
         
         // Если по запросу найден ответ, то кешируем его
-        if (IsGoodAnswer(answer))
-            _cacher->Put(request, answer);
+        /*if (IsGoodAnswer(answer))
+            _cacher->Put(request, answer);*/
         
         // Отправляем ответ пользователю
         send(sock, answer.c_str(), answer.length(), 0);

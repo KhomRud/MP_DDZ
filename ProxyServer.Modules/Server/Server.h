@@ -30,6 +30,14 @@ int ToInt(T val)
     return temp;
 }
 
+struct RequestData
+{
+    std::string Host;
+    std::string Port;
+    std::string Path;
+    std::string Params;
+};
+
 struct ThreadData
 {
     int Sock;
@@ -64,7 +72,7 @@ public:
     void UpdateConfig();
 
 private:
-    void FindHostAndPort(std::string str, std::string& host, std::string& port);
+    void ParseRequest(std::string request, RequestData& data);
     
     bool static IsGoodAnswer(std::string answer);
     

@@ -32,14 +32,6 @@ int ToInt(T val)
     return temp;
 }
 
-struct RequestData
-{
-    std::string Host;
-    std::string Port;
-    std::string Path;
-    std::string Params;
-};
-
 class Server
 {   
 public:
@@ -66,21 +58,13 @@ public:
 
 private:
     
-    /**
-     * Распарсить запрос
-     * @param request    Запрос
-     * @param data    Возвращаемая структура с частями запроса         .
-     */
-    void ParseRequest(std::string request, RequestData& data);
-    
-private:
-    
     int _listener; // Идентификатор принимающего сокета
     bool _listening; // флаг работы сервера
     const char* _config; // Путь до конфига
     
     ConfigurationData _configuration; // Текущая конфигурация
     Cacher* _cacher;    // Объект кешера
+    std::list<pthread_t*> *_threads;
 };
 
 

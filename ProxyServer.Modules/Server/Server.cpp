@@ -2,7 +2,26 @@
 
 #include "Server.h"
 
+#define THREAD_COUNT 10
+
 bool turn = true; 
+
+struct ThreadData
+{
+    int Sock;
+    Cacher* CacherObject;
+    
+    std::list<pthread_t*>* Threads;
+    pthread_t* Id;
+};
+
+struct RequestParts
+{
+    std::string Host;
+    std::string Port;
+    std::string Path;
+    std::string Params;
+};
 
 bool IsGoodAnswer(std::string answer)
 {
@@ -83,8 +102,13 @@ std::string GetPath(std::string request)
     
     return path;
 }
-
-void Server::ParseRequest(std::string request, RequestData& data)
+    
+    /**
+     * Распарсить запрос
+     * @param request    Запрос
+     * @param data    Возвращаемая структура с частями запроса         .
+     */
+void ParseRequest(std::string request, RequestParts& data)
 {
     data.Params = GetParams(request);
     data.Path = GetPath(request);
@@ -104,6 +128,7 @@ void Server::ParseRequest(std::string request, RequestData& data)
     
     data.Host = request.substr(pos + 6, endHost - pos - 6);
 }
+
 
 Server::Server(const char* config)
 {
@@ -138,12 +163,14 @@ Server::Server(const char* config)
     }
 
     // Переводим сокет в режим ожидания запросов
-    listen(_listener, 1);
+    listen(_listener, THREAD_COUNT);
 
     // Инициализируем кешер с настройками, заданными в конфигурационном файле
     _cacher = new Cacher("./cachefiles/", _configuration.CacheSize, _configuration.CacheRelevanceTime);
 
     _listening = false;
+    
+    _threads = new std::list<pthread_t*>;
 }
     
 Server::~Server()
@@ -151,10 +178,108 @@ Server::~Server()
     delete _cacher;
 }
 
+void ThreadExit(ThreadData* data)
+{
+    data->Threads->remove(data->Id);
+            
+    if(close(data->Sock) != 0)
+        perror("Не удалось закрыть сокет, принимающий запрос клиента.");
+    
+    delete data;
+    
+    pthread_exit(0);
+}
+
+void* ThreadProcessing(void* threadData)
+{
+    ThreadData* data  = (ThreadData*) threadData;
+    
+    std::string request = "";
+    char buf[2048]; // Буфер для считывания запросов
+
+    // Читаем данные из сокета, но по частям
+    int receivedBytes = recv(data->Sock, buf, sizeof(buf), 0);
+    while(receivedBytes != 0)
+    {
+        if(receivedBytes < 0)
+        {
+            perror("Ошибка при получении данных запроса");
+            break;
+        }
+
+        request.append(buf, receivedBytes); 
+
+        if(receivedBytes < sizeof(buf))
+            break;
+
+        receivedBytes = recv(data->Sock, buf, sizeof(buf), 0);
+    }
+
+    if(request == "")
+    {
+        std::cout << "Пустой запрос! \n";
+        ThreadExit(data);
+    }
+
+    if (request.substr(0, 3) != "GET" && request.substr(0, 4) != "POST")
+    {
+        std::cout << "Необрабатываемый запрос! \n";
+        ThreadExit(data);
+    }
+
+    // Парсим адрес хоста
+    RequestParts parts;
+    ParseRequest(request, parts); 
+
+    std::string head = request.substr(0, request.find("\r\n"));
+    std::cout << "Head of request: " << head << std::endl;
+
+    std::string url = parts.Host + ":"+ parts.Port + "/" + parts.Path + "?" + parts.Params;
+    std::cout << "Parsed url: " << url << std::endl;
+
+    std::string answer = "";
+
+    // Проверяем в кэше
+    answer = data->CacherObject->Get(url);
+
+    // Если найдено в кеше, то сразу отправляем ответ
+    if(answer != "")
+    {
+        std::cout << "Найдено в кэше. \n";
+
+        send(data->Sock, answer.c_str(), answer.length(), 0); 
+
+        ThreadExit(data);
+    }
+
+    std::cout << "Устанавливаю соединение" << "\n";
+
+    // Создаем объект с помощью которого отсылается запрос на сервер
+    Sender sender("http", parts.Host, ToInt(parts.Port));
+    
+    std::cout << "Отправляю запрос" << "\n";
+
+    // Посылаем запрос на сервер и получаем ответ
+    answer = sender.Send(request.c_str(), request.length(), true);
+
+    std::cout << "Отправляю ответ размера " <<  answer.length() << "\n";
+
+    // Если по запросу найден ответ, то кешируем его
+    if (IsGoodAnswer(answer))
+        data->CacherObject->Put(url, answer);
+
+    // Отправляем ответ пользователю
+    send(data->Sock, answer.c_str(), answer.length(), 0);
+
+    std::cout << "-------------------------------------" << "\n"<< "\n";
+    
+    // Закрываем сокет
+    ThreadExit(data);
+}
+
+
 void Server::Start()
 {
-    char buf[2000]; // Буфер для считывания запросов
-    
     _listening = true;
     
     while(_listening)
@@ -162,6 +287,9 @@ void Server::Start()
         // Получаем дискриптор клиентского сокета
         int sock = accept(_listener, NULL, NULL);
         
+        while(_threads->size() == THREAD_COUNT)
+            sleep(1);
+            
         // Если флаг работы сервера сброшен, то выходим
         if(!_listening)
             break;
@@ -169,88 +297,21 @@ void Server::Start()
         // Если дескриптор не получен, то выходим с ошибкой
         if(sock < 0)
         {
-            perror("accept");
-            exit(3);
-        }
-        
-        std::string request = "";
-        
-        // Читаем данные из сокета, но по частям
-        int receivedBytes = recv(sock, buf, sizeof(buf), 0);
-        while(receivedBytes != 0)
-        {
-            if(receivedBytes < 0)
-            {
-                perror("Ошибка при получении данных запроса");
-                break;
-            }
-
-            request.append(buf, receivedBytes); 
-
-            if(receivedBytes < sizeof(buf))
-                break;
-
-            receivedBytes = recv(sock, buf, sizeof(buf), 0);
-        }
-        
-        if(request == "")
-        {
-            close(sock);
+            perror("Accept Error!");
             continue;
         }
         
-        if (request.substr(0, 7) == "CONNECT")
-        {
-            close(sock);
-            continue;
-        }
+        pthread_t* thread = new pthread_t;
         
-        // Парсим адрес хоста
-        RequestData data;
-        ParseRequest(request, data); 
+        ThreadData* data = new ThreadData;
+        data->Sock = sock;
+        data->CacherObject = _cacher;
+        data->Threads = _threads;
+        data->Id = thread;
         
-        std::string head = request.substr(0, request.find("\r\n"));
-        std::cout << "Head of request: " << head << std::endl;
-        
-        std::string url = data.Host + ":"+ data.Port + "/" + data.Path + "?" + data.Params;
-        std::cout << "Parsed url: " << url << std::endl;
-        
-        std::string answer = "";
-        
-        
-        // Проверяем в кэше
-        answer = _cacher->Get(request);
-                
-        // Если найдено в кеше, то сразу отправляем ответ
-        if(answer != "")
-        {
-            std::cout << "Найдено в кэше" << std::endl;
-            
-            send(sock, answer.c_str(), answer.length(), 0); 
-            
-            close(sock);
-            continue;
-        }
-         
-        // Создаем объект с помощью которого отсылается запрос на сервер
-        Sender sender("http", data.Host, ToInt(data.Port));
-        
-        std::cout << "Отправляю запрос" << "\n";
-        
-        // Посылаем запрос на сервер и получаем ответ
-        answer = sender.Send(request.c_str(), request.length(), true);
-        
-        std::cout << "Отправляю ответ размера " <<  answer.length() << "\n";
-        
-        // Если по запросу найден ответ, то кешируем его
-        if (IsGoodAnswer(answer))
-            _cacher->Put(request, answer);
-        
-        // Отправляем ответ пользователю
-        send(sock, answer.c_str(), answer.length(), 0);
-        
-        // Закрываем сокет
-        close(sock);
+        pthread_create(thread, NULL, ThreadProcessing, (void *) data);
+    
+        _threads->push_back(thread);
     }
 }
 

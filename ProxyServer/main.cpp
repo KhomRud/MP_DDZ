@@ -14,7 +14,7 @@ void TurnOffServer(int signal)
     {
         ptr->Stop();
         delete ptr;
-        std::cout << "\nОстановка сервера !!!";
+        std::cout << "\nОстановка сервера !!!\n";
     }
     
     if (signal == SIGUSR1)

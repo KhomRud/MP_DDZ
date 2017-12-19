@@ -129,7 +129,6 @@ void ParseRequest(std::string request, RequestParts& data)
     data.Host = request.substr(pos + 6, endHost - pos - 6);
 }
 
-
 Server::Server(const char* config)
 {
     // Загружаем конфигурационный файл
@@ -277,7 +276,6 @@ void* ThreadProcessing(void* threadData)
     ThreadExit(data);
 }
 
-
 void Server::Start()
 {
     _listening = true;
@@ -301,6 +299,7 @@ void Server::Start()
             continue;
         }
         
+        // Подготовка нового потока       
         pthread_t* thread = new pthread_t;
         
         ThreadData* data = new ThreadData;
@@ -311,18 +310,24 @@ void Server::Start()
         
         pthread_create(thread, NULL, ThreadProcessing, (void *) data);
     
+        // Запись информации о новом потоке
         _threads->push_back(thread);
     }
 }
 
 void Server::Stop()
 {
-    _listening = false;
+    // Отключение порта-сервера
     close(_listener);
+    
+    // Остановка запущенных потоков
+    for(std::list<pthread_t*>::iterator it = _threads->begin(); it != _threads->end(); ++it)
+        pthread_cancel(**it);
 }
 
 void Server::UpdateConfig()
 {
+    // Обновление конфиг-файла
     _configuration = Configurator::Read(_config);
     _cacher->Resize(_configuration.CacheSize);
 }

@@ -52,7 +52,7 @@ public:
     void Stop();
     
     /**
-     * перезагрузить конфиг файл
+     * Перезагрузить конфиг файл
      */
     void UpdateConfig();
 
@@ -64,7 +64,7 @@ private:
     
     ConfigurationData _configuration; // Текущая конфигурация
     Cacher* _cacher;    // Объект кешера
-    std::list<pthread_t*> *_threads;
+    std::list<pthread_t*> *_threads;  // Лист, хранящий идентификаторы потоков 
 };
 
 
